@@ -39,14 +39,16 @@ const playlists = [
     },
 ]
 
-export function getTestPlaylists() {
-    return playlists
+export function getTestPlaylists(req, res) {
+    res.status(200).json(playlists)
 }
 
-export function getTestPlaylist(slug) {
-    return playlists.find((playlist) => playlist.slug === slug)
-}
-
-export function updateTestPlaylist(slug) {
-    return playlists.find((playlist) => playlist.slug === slug)
+export function getTestPlaylist(req, res) {
+    const { slug } = req.params
+    const playlist = playlists.find((playlist) => playlist.slug === slug)
+    if (playlist) {
+        res.status(200).json(playlist)
+    } else {
+        res.status(404).json({ message: 'Playlist not found' })
+    }
 }

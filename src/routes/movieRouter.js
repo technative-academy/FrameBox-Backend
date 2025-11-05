@@ -1,9 +1,16 @@
 import { Router } from 'express'
+import { getTestMovie, getTestMovies } from '../test-values/movieTestValues.js'
 
 const movieRouter = Router()
 
-movieRouter.get('/', (req, res) => {
-    res.status(200).json({ message: 'List of movies' })
+movieRouter.get('/', getTestMovies)
+movieRouter.get('/:slug', getTestMovie)
+movieRouter.patch('/:slug', getTestMovie)
+movieRouter.delete('/:slug', (req, res) => {
+    res.status(204).end()
+})
+movieRouter.post('/', (req, res) => {
+    res.status(201).json({ message: 'Movie created' })
 })
 
 export default movieRouter
