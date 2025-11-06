@@ -1,3 +1,5 @@
+import { movies } from './movieTestValues.js'
+
 const playlists = [
     {
         slug: 'scary-movies-to-sleep-to',
@@ -47,6 +49,7 @@ export function getTestPlaylist(req, res) {
     const { slug } = req.params
     const playlist = playlists.find((playlist) => playlist.slug === slug)
     if (playlist) {
+        playlist.movies = movies
         res.status(200).json(playlist)
     } else {
         res.status(404).json({ message: 'Playlist not found' })

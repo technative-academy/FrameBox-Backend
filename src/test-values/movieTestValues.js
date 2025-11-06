@@ -1,4 +1,4 @@
-const movies = [
+export const movies = [
     {
         slug: 'rush-hour',
         title: 'Rush Hour',
