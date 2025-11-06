@@ -57,9 +57,9 @@ export function updateTestPlaylist(req, res) {
     const { slug } = req.params
     const jsonData = req.body
     const playlist = playlists.find((playlist) => playlist.slug === slug)
-    if (!jsonData.title && !jsonData.summary) {
+    if (!jsonData.title && !jsonData.summary && !jsonData.movies) {
         res.status(400).json({
-            message: 'At least one of title or summary is required',
+            message: 'At least one of: title, movies or summary is required',
         })
     } else if (!playlist) {
         res.status(404).json({ message: 'Playlist not found' })
