@@ -87,4 +87,35 @@ movieRouter.delete('/:slug', async (req, res) => {
     res.status(204).end()
 })
 
+movieRouter.post('/', async (req, res) => {
+    const incomingPost = req.body
+
+    if (!incomingPost.title) {
+        return res.status(400).json({ message: 'Title required to create.' })
+    }
+
+    const slug = slugify(incomingPost.title, {
+        replacement: '-',
+        remove: /[*+~.()'"!:@]/g,
+        lower: true,
+    })
+
+    const sql = `
+            INSERT INTO movies (slug, title, description, date_added, img)
+            VALUES ($1, $2, $3, NOW(), $4);
+        `
+
+    const result = await db.query(sql, [
+        slug,
+        incomingPost.title,
+        incomingPost.description || null,
+        incomingPost.img || null,
+    ])
+
+    res.status(201).json({
+        message: `Movie "${incomingPost.title}" has been successfully created.`,
+        movie: result.rows[0],
+    })
+})
+
 export default movieRouter
