@@ -11,10 +11,10 @@ const file = fs.readFileSync('src/docs/FrameBox.yaml', 'utf8')
 const swaggerDocument = YAML.parse(file)
 const router = Router()
 
-router.use('/', swaggerUi.serve, swaggerUi.setup(swaggerDocument))
 router.use('/auth', authRouter)
 router.use('/movies', movieRouter)
 router.use('/playlists', playlistRouter)
 router.use('/users', userRouter)
+router.use('/', swaggerUi.serve, swaggerUi.setup(swaggerDocument))
 
 export default router
