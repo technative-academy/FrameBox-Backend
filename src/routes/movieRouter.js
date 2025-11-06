@@ -4,10 +4,14 @@ import {
     getTestMovies,
     updateTestMovie,
 } from '../test-values/movieTestValues.js'
+import { db } from '../db/db.js'
 
 const movieRouter = Router()
 
-movieRouter.get('/', getTestMovies)
+movieRouter.get('/', async (req, res) => {
+    const result = await db.query('SELECT * FROM movies')
+    res.status(200).json(result.rows)
+})
 movieRouter.get('/:slug', getTestMovie)
 movieRouter.patch('/:slug', updateTestMovie)
 movieRouter.delete('/:slug', (req, res) => {
