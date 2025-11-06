@@ -1,0 +1,410 @@
+openapi: 3.1.0
+info:
+  title: FrameBox
+  description: |
+    Description to be written!
+  version: 1.0.0-oas3.1
+servers:
+  - url: https://framebox-backend-production.up.railway.app/api
+    description: Production Server
+paths:
+  /playlists:
+    get:
+      tags:
+        - Playlists
+      summary: Returns a list of Playlists.
+      responses:
+        '200':
+          description: A JSON array of Playlists.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Playlist'
+    post:
+      tags:
+        - Playlists
+      summary: Creates a new Playlist.
+      requestBody:
+        description: Playlist object that needs to be added. 
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/Playlist'
+                - required: [title]
+
+      responses:
+        '201':
+          description: Playlist created successfully.
+  /playlists/{slug}:
+    delete:
+      tags:
+        - Playlists
+      summary: Deletes a Playlist.
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          description: The slug of the Playlist to delete.
+          schema:
+            $ref: '#/components/schemas/Playlist/properties/slug'
+      responses:
+        '204':
+          description: ''
+    patch:
+      tags:
+        - Playlists
+      summary: Updates a Playlist's details
+      description: This PATCH method allows the Playlist's title, summary or movie list to be changed. <br><br> **NOTE** the currently functionality of amending the movie list requires you to submit the new Movie list for the playlist **in full**. You will be replacing the entire array. <br><br> Looking into perhaps having a `/playlist/{slug}/add` and `/playlist/{slug}/remove` but this comes with it's own issues as it makes it more complicated to add and remove at the same time on front end? I LIE that is not restful..
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          description: The slug of the Playlist to Update
+          schema:
+            $ref: '#/components/schemas/Playlist/properties/slug'
+      requestBody:
+        description: Playlist attributes to be changed.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Playlist'
+              description: Request can contain one or more of the following components.
+      responses:
+        '200':
+          description: Playlist updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Playlist'
+    get:
+      tags:
+        - Playlists
+      summary: Get playlist and its movies by Playlist ID
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          description: The slug of the Playlist to Update
+          schema:
+            $ref: '#/components/schemas/Playlist/properties/slug'
+      responses:
+        '200':
+          description: A JSON Playlist object with an Array of Movie Objects
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IndividualPlaylist'
+  /movies:
+    get:
+      tags:
+        - Movies
+      summary: Returns a list of Movies.
+      responses:
+        '200':
+          description: A JSON array of Movies.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Movie'
+    post:
+      tags:
+        - Movies
+      summary: Creates a Movie
+      requestBody:
+        description: Movie attributes in JSON format.
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf: 
+                - $ref: '#/components/schemas/Movie'
+                - required: [title]
+      responses:
+        '201':
+          description: Movie created successfully
+  /movies/{slug}:
+    get:
+      tags:
+        - Movies
+      summary: Get Movie by slug
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          description: The slug of the Movie to GET
+          schema:
+            $ref: '#/components/schemas/Movie/properties/slug'
+      responses:
+        '200':
+          description: A JSON Movie object
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Movie'
+    patch:
+      tags:
+        - Movies
+      summary: Updates a Movie
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          description: The slug of the Movie to Update
+          schema:
+            $ref: '#/components/schemas/Movie/properties/slug'
+      requestBody:
+        description: Playlist attributes to be changed.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Movie'
+              description: Request can contain one or more of the following components.
+      responses:
+        '200':
+          description: Playlist updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Movie'
+                
+    delete:
+      tags:
+        - Movies
+      summary: Deletes a Movie.
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          description: The slug of the Movie to delete.
+          schema:
+            $ref: '#/components/schemas/Movie/properties/slug'
+      responses:
+        '204':
+          description: ''
+  /auth/register:
+    post:
+      tags:
+        - Auth
+      summary: Registers a User
+      requestBody:
+        description: User attributes in JSON format.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        '201':
+          description: User created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+  /auth/login:
+    post:
+      tags:
+        - Auth
+      summary: Login as User
+      requestBody:
+        description: User email and password in JSON format.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Access Granted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+  /auth/refresh-token:
+    post:
+      tags:
+        - Auth
+      summary: Refreshes the access token using the refresh token.
+      requestBody:
+        description: Cookie containing refresh-token.
+        required: true
+        content:
+          text/plain:
+            schema:
+              type: string
+              examples: [This is a cookie, not string.]
+      responses:
+        '200':
+          description: New Access Token granted
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    examples: [New Access Token]
+  /auth/logout:
+    post:
+      tags:
+        - Auth
+      summary: Logs out a user and clears the refresh token cookie.
+      responses:
+        '200':
+          description: Logged Out
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    examples: [Logged Out]
+  /users/{slug}:
+    get:
+      tags:
+        - Users 
+      summary: Get a user's public details.
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          description: The slug of the user to get.
+          schema:
+            $ref: '#/components/schemas/User/properties/slug'
+      responses:
+        '200':
+          description: User Details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+      
+components:
+  schemas:
+    Playlist:
+      type: object
+      properties:
+        slug:
+          type: string
+          readOnly: true
+          examples: [scary-movies-to-sleep-to]
+        title:
+          type: string
+          examples: [Scary Movies To Sleep To]
+        summary:
+          type: string
+        movies:
+          type: array
+          items:
+            $ref: '#/components/schemas/Movie/properties/slug'
+        date_created:
+          type: string
+          format: date-time
+          readOnly: true
+        author:
+          allOf:
+            - $ref: '#/components/schemas/User/properties/username'
+            - readOnly: true
+    IndividualPlaylist:
+      type: object
+      properties:
+        slug:
+          type: string
+          readOnly: true
+          examples: [scary-movies-to-sleep-to]
+        title:
+          type: string
+          examples: [Scary Movies To Sleep To]
+        summary:
+          type: string
+        movies:
+          type: array
+          items:
+            $ref: '#/components/schemas/Movie'
+        date_created:
+          type: string
+          format: date-time
+          readOnly: true
+        author:
+          allOf:
+            - $ref: '#/components/schemas/User/properties/username'
+            - readOnly: true
+    Movie:
+      type: object
+      properties:
+        slug:
+          type: string
+          readOnly: true
+          examples: [rush-hour, slugged-value]
+        title:
+          type: string
+          examples: [Rush Hour]
+        description:
+          type: string
+        date_added:
+          type: string
+          format: date-time
+          readOnly: true
+        img:
+          type: string
+          format: url
+        genre:
+          $ref: '#/components/schemas/Genre/properties/title'
+    User:
+      type: object
+      properties:
+        slug:
+          type: string
+          readOnly: true
+          examples: [movieman22]
+        username:
+          type: string
+          examples: [MovieMan22]
+        bio:
+          type: string
+        email:
+          type: string
+          format: email
+          writeOnly: true
+        password:
+          type: string
+          format: password
+          writeOnly: true
+        date_joined:
+          type: string
+          format: date-time
+          readOnly: true
+    Genre:
+      type: object
+      properties:
+        slug:
+          type: string
+          examples: [horror]
+        title:
+          type: string
+          examples: [Horror]
+    LoginRequest:
+      type: object
+      properties:
+        email:
+          $ref: '#/components/schemas/User/properties/email'
+        password:
+          $ref: '#/components/schemas/User/properties/password'
+      required:
+        - email
+        - password
+    LoginResponse:
+      type: object
+      properties:
+        username:
+          $ref: '#/components/schemas/User/properties/username'
+        accessToken:
+          type: string
+        refreshToken:
+          type: string
