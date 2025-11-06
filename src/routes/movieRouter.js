@@ -1,11 +1,15 @@
 import { Router } from 'express'
-import { getTestMovie, getTestMovies } from '../test-values/movieTestValues.js'
+import {
+    getTestMovie,
+    getTestMovies,
+    updateTestMovie,
+} from '../test-values/movieTestValues.js'
 
 const movieRouter = Router()
 
 movieRouter.get('/', getTestMovies)
 movieRouter.get('/:slug', getTestMovie)
-movieRouter.patch('/:slug', getTestMovie)
+movieRouter.patch('/:slug', updateTestMovie)
 movieRouter.delete('/:slug', (req, res) => {
     res.status(204).end()
 })

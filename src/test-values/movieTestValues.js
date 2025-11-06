@@ -59,3 +59,18 @@ export function getTestMovie(req, res) {
         res.status(404).json({ message: 'Movie not found' })
     }
 }
+
+export function updateTestMovie(req, res) {
+    const { slug } = req.params
+    const jsonData = req.body
+    const movie = movies.find((movie) => movie.slug === slug)
+    if (!jsonData.title && !jsonData.summary) {
+        res.status(400).json({
+            message: 'At least one of title or description is required',
+        })
+    } else if (!movie) {
+        res.status(404).json({ message: 'Movie not found' })
+    } else {
+        res.status(200).json(movie)
+    }
+}
