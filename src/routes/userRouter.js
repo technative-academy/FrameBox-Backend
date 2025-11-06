@@ -1,8 +1,8 @@
 import { Router } from 'express'
 import { getTestUser } from '../test-values/userTestValues.js'
 
-const movieRouter = Router()
+const userRouter = Router()
 
-movieRouter.get('/:slug', getTestUser)
+userRouter.get('/:slug', getTestUser)
 
-export default movieRouter
+export default userRouter
