@@ -81,4 +81,10 @@ movieRouter.patch('/:slug', async (req, res) => {
     res.status(201).json(`Entry "${slug}" has been succesfully updated.`)
 })
 
+movieRouter.delete('/:slug', async (req, res) => {
+    const slug = req.params.slug
+    const result = await db.query('DELETE FROM movies WHERE slug = $1', [slug])
+    res.status(204).end()
+})
+
 export default movieRouter
