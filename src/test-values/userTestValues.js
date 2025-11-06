@@ -45,6 +45,8 @@ export function getTestUser(req, res) {
     const { slug } = req.params
     const user = users.find((user) => user.slug === slug)
     if (user) {
+        delete user.password
+        delete user.email
         res.status(200).json(user)
     } else {
         res.status(404).json({ message: 'User not found' })
