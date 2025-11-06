@@ -5,6 +5,7 @@ import {
     updateTestPlaylist,
 } from '../test-values/playlistTestValues.js'
 import { db } from '../db/db.js'
+import slugify from 'slugify'
 
 const playlistRouter = Router()
 
@@ -144,8 +145,71 @@ playlistRouter.delete('/:slug', async (req, res) => {
     ])
     res.status(204).end()
 })
-playlistRouter.post('/', (req, res) => {
-    res.status(201).json({ message: 'Playlist created' })
+playlistRouter.post('/', async (req, res) => {
+    const incomingPost = req.body
+    const userId = 'a6705e10-8d8c-48f9-ae3e-31b1bfacb4cc'
+
+    //hardcoded for now
+
+    if (!incomingPost.title) {
+        return res.status(400).json({ message: 'Title required to create.' })
+    }
+
+    const slug = slugify(incomingPost.title, {
+        replacement: '-',
+        remove: /[*+~.()'"!:@]/g,
+        lower: true,
+    })
+
+    const sqlCreatePLaylist = `
+            INSERT INTO playlists (slug, title, summary, date_created, user_id)
+            VALUES ($1, $2, $3, NOW(), $4);
+        `
+
+    const resultCreatePlaylist = await db.query(sqlCreatePLaylist, [
+        slug,
+        incomingPost.title,
+        incomingPost.summary || null,
+        userId,
+    ])
+
+    const resultPlaylistId = await db.query(
+        `SELECT p.id FROM playlists AS p WHERE p.slug = $1`,
+        [slug]
+    )
+    const playlistId = resultPlaylistId.rows[0].id
+
+    if (incomingPost.movies && incomingPost.movies.length > 0) {
+        // Get movie IDs from slugs
+        const movieSlugs = incomingPost.movies
+        const placeholderSlugs = movieSlugs
+            .map((_, i) => `$${i + 1}`)
+            .join(', ')
+        const sqlGetMoviesIds = `SELECT id FROM movies WHERE slug IN (${placeholderSlugs});`
+
+        const resultGetMoviesIds = await db.query(sqlGetMoviesIds, movieSlugs)
+        const movieIds = resultGetMoviesIds.rows.map((row) => row.id)
+
+        // Prepare bulk insert query
+        const insertValues = []
+        const params = []
+        let paramIndex = 1
+
+        for (const movieId of movieIds) {
+            insertValues.push(`($${paramIndex++}, $${paramIndex++})`)
+            params.push(playlistId, movieId)
+        }
+
+        const sqlFillPlaylist = `
+                INSERT INTO playlist_movies (playlist_id, movie_id)
+                VALUES ${insertValues.join(', ')}
+            `
+        await db.query(sqlFillPlaylist, params)
+    }
+
+    res.status(201).json({
+        message: `Playlist "${incomingPost.title}" has been successfully created.`,
+    })
 })
 
 export default playlistRouter
