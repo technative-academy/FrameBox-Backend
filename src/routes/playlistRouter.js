@@ -137,7 +137,11 @@ playlistRouter.patch('/:slug', async (req, res) => {
     res.status(201).json(`Entry "${slug}" has been succesfully updated.`)
 })
 
-playlistRouter.delete('/:slug', (req, res) => {
+playlistRouter.delete('/:slug', async (req, res) => {
+    const slug = req.params.slug
+    const result = await db.query('DELETE FROM playlists WHERE slug = $1', [
+        slug,
+    ])
     res.status(204).end()
 })
 playlistRouter.post('/', (req, res) => {
