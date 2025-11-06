@@ -18,6 +18,12 @@ app.get('/test', (req, res) => {
     res.status(200).json({ it_is: 'working!' })
 })
 
+// Every thrown error in the application or the previous middleware function calling `next` with an error as an argument will eventually go to this middleware function
+app.use((err, req, res, next) => {
+    console.error(err)
+    res.status(err.statusCode || 500).send(err.message)
+})
+
 app.listen(port, () => {
     console.log(`server running at http://localhost:${port}`)
 })
