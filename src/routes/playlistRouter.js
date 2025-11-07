@@ -11,7 +11,21 @@ const playlistRouter = Router()
 
 playlistRouter.get('/', async (req, res) => {
     const result = await db.query(
-        'SELECT p.slug, p.title, p.summary, p.date_created FROM playlists AS p'
+        'SELECT
+    p.slug,
+    p.title,
+    p.summary,
+    p.date_created,
+    COALESCE(
+        json_agg(m.slug) FILTER (WHERE m.id IS NOT NULL),
+        '[]'
+    ) AS movies,
+    u.username
+FROM playlists p
+LEFT JOIN playlist_movies pm ON pm.playlist_id = p.id
+LEFT JOIN movies m ON m.id = pm.movie_id
+LEFT JOIN users u ON u.id = p.user_id
+GROUP BY p.id, u.username;'
     )
     res.status(200).json(result.rows)
 })
@@ -49,7 +63,7 @@ playlistRouter.get('/:slug', async (req, res) => {
           })
         : null
 
-    res.status(200).json(result.rows)
+    res.status(200).json(result.rows[0])
 })
 
 playlistRouter.patch('/:slug', async (req, res) => {
