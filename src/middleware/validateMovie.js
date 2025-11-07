@@ -1,4 +1,6 @@
 import InvalidDataError from '../errors/InvalidDataError.js'
+import NotFoundError from '../errors/NotFoundError.js'
+import { db } from '../db/db.js'
 
 const MAX_TEXT_LENGTH = 2000
 
@@ -51,6 +53,19 @@ export function validateMovieReq(req, res, next) {
         - limit image url to specific domain
         - cant think of any more right now
     */
+
+    next()
+}
+
+export async function validateMovieExists(req, res, next) {
+    const slug = req.params.slug
+    const result = await db.query(
+        'SELECT m.slug FROM movies AS m WHERE slug = $1',
+        [slug]
+    )
+    if (result.rowCount == 0) {
+        throw new NotFoundError(`Movie "${slug}" not found.`)
+    }
 
     next()
 }

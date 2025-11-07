@@ -2,7 +2,10 @@ import { Router } from 'express'
 import { db } from '../db/db.js'
 import slugify from 'slugify'
 import NotFoundError from '../errors/NotFoundError.js'
-import { validateMovieReq } from '../middleware/validateMovie.js'
+import {
+    validateMovieExists,
+    validateMovieReq,
+} from '../middleware/validateMovie.js'
 import { slugIdentifier } from '../middleware/slugIdentifier.js'
 import { dupilcateCheckMovie } from '../middleware/duplicateCheck.js'
 
@@ -79,7 +82,7 @@ movieRouter.patch(
     }
 )
 
-movieRouter.delete('/:slug', async (req, res) => {
+movieRouter.delete('/:slug', validateMovieExists, async (req, res) => {
     const slug = req.params.slug
     const result = await db.query('DELETE FROM movies WHERE slug = $1', [slug])
     res.status(204).end()
