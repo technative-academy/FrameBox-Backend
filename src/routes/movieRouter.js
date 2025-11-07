@@ -33,7 +33,7 @@ movieRouter.get('/:slug', async (req, res) => {
         throw new NotFoundError(`Movie with slug "${slug}" not found.`)
     }
 
-    res.status(200).json(result.rows)
+    res.status(200).json(result.rows[0])
 })
 
 //update movie by name (slug)
@@ -75,7 +75,7 @@ movieRouter.patch(
 
         const result = await db.query(sql, values)
 
-        res.status(201).json(`Entry "${slug}" has been succesfully updated.`)
+        res.status(200).json(`Entry "${slug}" has been succesfully updated.`)
     }
 )
 
