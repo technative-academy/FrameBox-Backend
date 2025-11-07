@@ -8,24 +8,29 @@ export function validateMovieReq(req, res, next) {
     const reqObjKeys = Object.keys(req.body)
     const { title, description, img } = req.body
 
+    // if req.body is empty
     if (reqObjKeys.length === 0) {
         throw new InvalidDataError('No data provided for update / creation.')
     }
 
+    // if POST and title not given
     if (req.method === 'POST' && title === undefined) {
         throw new InvalidDataError('Title is required for movie creation.')
     }
 
+    // if no valid key is present
     if (!['title', 'description', 'img'].some((key) => key in req.body)) {
         throw new InvalidDataError(
             'No valid keys provided for update / creation.'
         )
     }
 
+    // if title is empty
     if (title !== undefined && title.trim() === '') {
         throw new InvalidDataError('Title cannot be empty.')
     }
 
+    // if things aren't string, make them string
     if (title !== undefined) {
         req.body.title = String(title)
     }
@@ -38,6 +43,8 @@ export function validateMovieReq(req, res, next) {
         req.body.img = String(img)
     }
 
+    // if unnecessary keys exist, delete them
+    // also check nothing goes over text character limit
     for (const key of reqObjKeys) {
         if (!['title', 'description', 'img'].includes(key)) {
             delete req.body.key
