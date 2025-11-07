@@ -42,6 +42,7 @@ movieRouter.get('/:slug', async (req, res) => {
 //update movie by name (slug)
 movieRouter.patch(
     '/:slug',
+    validateMovieExists,
     validateMovieReq,
     slugIdentifier,
     dupilcateCheckMovie,
@@ -74,11 +75,15 @@ movieRouter.patch(
     UPDATE movies
     SET ${fields.join(', ')}
     WHERE "slug" = $${values.length}
+    RETURNING slug, title, description, date_added, img;
     `
 
         const result = await db.query(sql, values)
 
-        res.status(200).json(`Entry "${slug}" has been succesfully updated.`)
+        res.status(200).json({
+            message: `Entry "${slug}" has been succesfully updated.`,
+            movie: result.rows[0],
+        })
     }
 )
 
@@ -98,7 +103,8 @@ movieRouter.post(
 
         const sql = `
             INSERT INTO movies (slug, title, description, date_added, img)
-            VALUES ($1, $2, $3, NOW(), $4);
+            VALUES ($1, $2, $3, NOW(), $4)
+            RETURNING slug, title, description, date_added, img;
         `
 
         const result = await db.query(sql, [
