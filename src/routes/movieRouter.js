@@ -12,7 +12,7 @@ const movieRouter = Router()
 //get all movies
 movieRouter.get('/', async (req, res) => {
     const result = await db.query(
-        'SELECT m.slug, m.title, m.description, m.img FROM movies AS m'
+        'SELECT m.slug, m.title, m.description, m.date_added, m.img FROM movies AS m'
     )
     res.status(200).json(result.rows)
 })
@@ -21,7 +21,7 @@ movieRouter.get('/', async (req, res) => {
 movieRouter.get('/:slug', async (req, res) => {
     const slug = req.params.slug
     const result = await db.query(
-        'SELECT m.slug, m.title, m.description, m.img FROM movies AS m WHERE slug = $1',
+        'SELECT m.slug, m.title, m.description, m.date_added, m.img FROM movies AS m WHERE slug = $1',
         [slug]
     )
     result.rowCount == 0
