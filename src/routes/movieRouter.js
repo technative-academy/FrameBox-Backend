@@ -1,11 +1,8 @@
 import { Router } from 'express'
-import {
-    getTestMovie,
-    getTestMovies,
-    updateTestMovie,
-} from '../test-values/movieTestValues.js'
 import { db } from '../db/db.js'
 import slugify from 'slugify'
+import NotFoundError from '../errors/NotFoundError.js'
+import { validateMovieUpdate } from '../middleware/validateMovie.js'
 
 const movieRouter = Router()
 
@@ -14,6 +11,11 @@ movieRouter.get('/', async (req, res) => {
     const result = await db.query(
         'SELECT m.slug, m.title, m.description, m.date_added, m.img FROM movies AS m'
     )
+
+    if (result.rowCount == 0) {
+        throw new NotFoundError('No movies found.')
+    }
+
     res.status(200).json(result.rows)
 })
 
@@ -24,17 +26,16 @@ movieRouter.get('/:slug', async (req, res) => {
         'SELECT m.slug, m.title, m.description, m.date_added, m.img FROM movies AS m WHERE slug = $1',
         [slug]
     )
-    result.rowCount == 0
-        ? res.status(404).json({
-              status: 404,
-              message: `entry with the slug "${slug}" was not found.`,
-          })
-        : null
+
+    if (result.rowCount == 0) {
+        throw new NotFoundError(`Movie with slug "${slug}" not found.`)
+    }
+
     res.status(200).json(result.rows)
 })
 
 //update movie by name (slug)
-movieRouter.patch('/:slug', async (req, res) => {
+movieRouter.patch('/:slug', validateMovieUpdate, async (req, res) => {
     const slug = req.params.slug
     const incomingPatch = req.body
 
@@ -62,9 +63,6 @@ movieRouter.patch('/:slug', async (req, res) => {
     if (incomingPatch.img) {
         fields.push(`img = $${fields.length + 1}`)
         values.push(incomingPatch.img)
-    }
-    if (fields.length === 0) {
-        return res.status(400).json({ message: 'No valid fields to update.' })
     }
 
     //pushing initial slug to specify which entry to patch
