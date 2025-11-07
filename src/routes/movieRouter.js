@@ -68,8 +68,8 @@ movieRouter.patch(
         values.push(slug)
 
         const sql = `
-    UPDATE movies 
-    SET ${fields.join(', ')} 
+    UPDATE movies
+    SET ${fields.join(', ')}
     WHERE "slug" = $${values.length}
     `
 

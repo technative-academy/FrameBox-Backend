@@ -16,7 +16,7 @@ export function validateMovieUpdate(req, res, next) {
         throw new InvalidDataError('Title cannot be empty.')
     }
 
-    for (key of resObjKeys) {
+    for (const key of resObjKeys) {
         if (!['title', 'description', 'img'].includes(key)) {
             delete req.body[key]
         }
