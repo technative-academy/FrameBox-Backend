@@ -33,27 +33,31 @@ GROUP BY p.id, u.username;'
 playlistRouter.get('/:slug', async (req, res) => {
     const slug = req.params.slug
     const sql = `
-    SELECT 
-        p.slug,
-        p.title,
-        p.summary,
-        p.date_created,
-        COALESCE(
-            json_agg(
-                json_build_object(
-                    'slug', m.slug,
-                    'title', m.title,
-                    'description', m.description,
-                    'date_added', m.date_added,
-                    'img', m.img
-                )
-            ) 
-        ) AS movies
-        FROM playlists p
-        LEFT JOIN playlist_movies pm ON pm.playlist_id = p.id
-        LEFT JOIN movies m ON m.id = pm.movie_id
-        WHERE p.slug = $1
-        GROUP BY p.id;
+    SELECT
+    p.slug,
+    p.title,
+    p.summary,
+    p.date_created,
+    COALESCE(
+        json_agg(
+            json_build_object(
+                'slug', m.slug,
+                'title', m.title,
+                'description', m.description,
+                'date_added', m.date_added,
+                'img', m.img
+            )
+        ) FILTER (WHERE m.id IS NOT NULL),
+        '[]'
+    ) AS movies,
+    u.username
+    FROM playlists p
+    LEFT JOIN playlist_movies pm ON pm.playlist_id = p.id
+    LEFT JOIN movies m ON m.id = pm.movie_id
+    LEFT JOIN users u ON u.id = p.user_id
+    WHERE p.slug = $1
+    GROUP BY p.id, u.username;
+
     `
     const result = await db.query(sql, [slug])
     result.rowCount == 0
