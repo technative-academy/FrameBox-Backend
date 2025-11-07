@@ -1,4 +1,4 @@
-import InvalidDataError from '../errors/NoValidKeysError'
+import InvalidDataError from '../errors/InvalidDataError.js'
 
 export function validateMovieUpdate(req, res, next) {
     const resObjKeys = Object.keys(req.body)
