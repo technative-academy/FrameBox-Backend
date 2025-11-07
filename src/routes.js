@@ -15,6 +15,6 @@ router.use('/auth', authRouter)
 router.use('/movies', movieRouter)
 router.use('/playlists', playlistRouter)
 router.use('/users', userRouter)
-router.use('/', swaggerUi.serve, swaggerUi.setup(swaggerDocument))
+router.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument))
 
 export default router

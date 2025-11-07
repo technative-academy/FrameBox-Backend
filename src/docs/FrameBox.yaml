@@ -126,7 +126,7 @@ paths:
                             required:
                                 - movies
             responses:
-                '200':
+                '201':
                     description: Movies added successfully
                     content:
                         application/json:

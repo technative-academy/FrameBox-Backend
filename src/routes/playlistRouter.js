@@ -1,13 +1,11 @@
 import { Router } from 'express'
-import {
-    getTestPlaylist,
-    getTestPlaylists,
-    updateTestPlaylist,
-} from '../test-values/playlistTestValues.js'
+import playlistMovieRouter from './playlistMovieRouter.js'
 import { db } from '../db/db.js'
 import slugify from 'slugify'
 
 const playlistRouter = Router()
+
+playlistRouter.use('/:slug/movies', playlistMovieRouter)
 
 playlistRouter.get('/', async (req, res) => {
     const result = await db.query(
