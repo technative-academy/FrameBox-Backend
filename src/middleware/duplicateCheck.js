@@ -1,4 +1,4 @@
-import ConflictError from '../errors/ConflictError'
+import ConflictError from '../errors/ConflictError.js'
 import { db } from '../db/db.js'
 
 export async function dupilcateCheckMovie(req, res, next) {
