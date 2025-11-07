@@ -2,8 +2,9 @@ import { Router } from 'express'
 import { db } from '../db/db.js'
 import slugify from 'slugify'
 import NotFoundError from '../errors/NotFoundError.js'
-import { validateMovieUpdate } from '../middleware/validateMovie.js'
+import { validateMovieReq } from '../middleware/validateMovie.js'
 import { slugIdentifier } from '../middleware/slugIdentifier.js'
+import { dupilcateCheckMovie } from '../middleware/duplicateCheck.js'
 
 const movieRouter = Router()
 
@@ -38,8 +39,9 @@ movieRouter.get('/:slug', async (req, res) => {
 //update movie by name (slug)
 movieRouter.patch(
     '/:slug',
-    validateMovieUpdate,
+    validateMovieReq,
     slugIdentifier,
+    dupilcateCheckMovie,
     async (req, res) => {
         const slug = req.params.slug
         const incomingPatch = req.body
@@ -52,8 +54,6 @@ movieRouter.patch(
             values.push(incomingPatch.title)
             fields.push(`slug = $${fields.length + 1}`)
             values.push(incomingPatch.slug)
-
-            // a risk of potentially same slugs arises here: to be solved later
         }
         if (incomingPatch.description) {
             fields.push(`description = $${fields.length + 1}`)
@@ -85,35 +85,31 @@ movieRouter.delete('/:slug', async (req, res) => {
     res.status(204).end()
 })
 
-movieRouter.post('/', async (req, res) => {
-    const incomingPost = req.body
+movieRouter.post(
+    '/',
+    validateMovieReq,
+    slugIdentifier,
+    dupilcateCheckMovie,
+    async (req, res) => {
+        const incomingPost = req.body
 
-    if (!incomingPost.title) {
-        return res.status(400).json({ message: 'Title required to create.' })
-    }
-
-    const slug = slugify(incomingPost.title, {
-        replacement: '-',
-        remove: /[*+~.()'"!:@]/g,
-        lower: true,
-    })
-
-    const sql = `
+        const sql = `
             INSERT INTO movies (slug, title, description, date_added, img)
             VALUES ($1, $2, $3, NOW(), $4);
         `
 
-    const result = await db.query(sql, [
-        slug,
-        incomingPost.title,
-        incomingPost.description || null,
-        incomingPost.img || null,
-    ])
+        const result = await db.query(sql, [
+            incomingPost.slug,
+            incomingPost.title,
+            incomingPost.description || null,
+            incomingPost.img || null,
+        ])
 
-    res.status(201).json({
-        message: `Movie "${incomingPost.title}" has been successfully created.`,
-        movie: result.rows[0],
-    })
-})
+        res.status(201).json({
+            message: `Movie "${incomingPost.title}" has been successfully created.`,
+            movie: result.rows[0],
+        })
+    }
+)
 
 export default movieRouter
