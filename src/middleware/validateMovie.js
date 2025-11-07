@@ -1,26 +1,56 @@
 import InvalidDataError from '../errors/InvalidDataError.js'
 
-export function validateMovieUpdate(req, res, next) {
-    const resObjKeys = Object.keys(req.body)
-    const { title } = req.body
+const MAX_TEXT_LENGTH = 2000
 
-    if (resObjKeys.length === 0) {
-        throw new InvalidDataError('No data provided for update.')
+export function validateMovieReq(req, res, next) {
+    const reqObjKeys = Object.keys(req.body)
+    const { title, description, img } = req.body
+
+    if (reqObjKeys.length === 0) {
+        throw new InvalidDataError('No data provided for update / creation.')
+    }
+
+    if (req.method === 'POST' && title === undefined) {
+        throw new InvalidDataError('Title is required for movie creation.')
     }
 
     if (!['title', 'description', 'img'].some((key) => key in req.body)) {
-        throw new InvalidDataError('No valid keys provided for update.')
+        throw new InvalidDataError(
+            'No valid keys provided for update / creation.'
+        )
     }
 
-    if (title && title === '') {
+    if (title !== undefined && title.trim() === '') {
         throw new InvalidDataError('Title cannot be empty.')
     }
 
-    for (const key of resObjKeys) {
+    if (title !== undefined) {
+        req.body.title = String(title)
+    }
+
+    if (description !== undefined) {
+        req.body.description = String(description)
+    }
+
+    if (img !== undefined) {
+        req.body.img = String(img)
+    }
+
+    for (const key of reqObjKeys) {
         if (!['title', 'description', 'img'].includes(key)) {
             delete req.body[key]
+        } else if (req.body.key.length > MAX_TEXT_LENGTH) {
+            throw new InvalidDataError(
+                `${key} exceeds maximum length of ${MAX_TEXT_LENGTH} characters.`
+            )
         }
     }
+
+    /*  extra checks that can be added
+        - limit characters to number/letters/spaces/commom punctuation
+        - limit image url to specific domain
+        - cant think of any more right now
+    */
 
     next()
 }
