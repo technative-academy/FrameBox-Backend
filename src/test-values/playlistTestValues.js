@@ -1,6 +1,6 @@
 import { movies } from './movieTestValues.js'
 
-const playlists = [
+export const playlists = [
     {
         slug: 'scary-movies-to-sleep-to',
         title: 'Scary Movies To Sleep To',
@@ -67,6 +67,16 @@ export function updateTestPlaylist(req, res) {
     } else if (!playlist) {
         res.status(404).json({ message: 'Playlist not found' })
     } else {
+        res.status(200).json(playlist)
+    }
+}
+
+export function addRemoveTestMoviesFromPlaylist(req, res) {
+    if (!req.body.movies) {
+        res.status(400).json({ message: 'Movies array is required' })
+    } else {
+        const playlist = playlists[0]
+        playlist.movies = movies
         res.status(200).json(playlist)
     }
 }
