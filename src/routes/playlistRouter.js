@@ -54,6 +54,8 @@ playlistRouter.get('/:slug', async (req, res) => {
 
 playlistRouter.patch('/:slug', async (req, res) => {
     let isRemovingEntry = false
+    // will change depending on whether the movie is already in the playlist or not
+
     const slug = req.params.slug
     const incomingPatch = req.body
     const resultPlaylistId = await db.query(
@@ -89,6 +91,10 @@ playlistRouter.patch('/:slug', async (req, res) => {
             `SELECT m.id FROM movies AS m WHERE m.slug = $1`,
             [incomingPatch.movie]
         )
+
+        // I could as well use COALESCE() here, to group the movies if we had a whole array,
+        // but will do later (another layer of complexity)
+
         movieId = resultMovieId.rows[0].id
         const resultMovie = await db.query(
             `SELECT * FROM playlist_movies AS pm WHERE pm.playlist_id = $1 AND pm.movie_id = $2`,
@@ -186,6 +192,9 @@ playlistRouter.post('/', async (req, res) => {
             .map((_, i) => `$${i + 1}`)
             .join(', ')
         const sqlGetMoviesIds = `SELECT id FROM movies WHERE slug IN (${placeholderSlugs});`
+
+        // This is very smart. It turns out that SQL can check a list of items for match
+        // automatically using IN (Like Python does!!!!)
 
         const resultGetMoviesIds = await db.query(sqlGetMoviesIds, movieSlugs)
         const movieIds = resultGetMoviesIds.rows.map((row) => row.id)
