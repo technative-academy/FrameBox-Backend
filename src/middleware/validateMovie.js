@@ -52,7 +52,7 @@ export function validateMovieReq(req, res, next) {
     // also check nothing goes over text character limit
     for (const key of reqObjKeys) {
         if (!['title', 'description', 'img'].includes(key)) {
-            delete req.body.key
+            delete req.body[key]
         } else if (req.body[key].length > MAX_TEXT_LENGTH) {
             throw new InvalidDataError(
                 `${key} exceeds maximum length of ${MAX_TEXT_LENGTH} characters.`
