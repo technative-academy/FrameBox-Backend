@@ -18,6 +18,11 @@ export function validateMovieReq(req, res, next) {
         throw new InvalidDataError('Title is required for movie creation.')
     }
 
+    // if PATCH and title not given
+    if (req.method === 'PATCH' && title === undefined) {
+        req.body.title = req.params.slug
+    }
+
     // if no valid key is present
     if (!['title', 'description', 'img'].some((key) => key in req.body)) {
         throw new InvalidDataError(
