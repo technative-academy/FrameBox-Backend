@@ -25,12 +25,16 @@ movieRouter.get('/', async (req, res) => {
 })
 
 //get movie by name (slug)
-movieRouter.get('/:slug', validateMovieExists, async (req, res) => {
+movieRouter.get('/:slug', async (req, res) => {
     const slug = req.params.slug
     const result = await db.query(
         'SELECT m.slug, m.title, m.description, m.date_added, m.img FROM movies AS m WHERE slug = $1',
         [slug]
     )
+
+    if (result.rowCount == 0) {
+        throw new NotFoundError(`Movie "${slug}" not found.`)
+    }
 
     res.status(200).json(result.rows[0])
 })
