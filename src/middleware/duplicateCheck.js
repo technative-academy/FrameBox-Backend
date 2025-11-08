@@ -4,11 +4,12 @@ import { db } from '../db/db.js'
 // requires slug to be set in body
 export async function dupilcateCheckMovie(req, res, next) {
     const slug = req.body.slug
-    const targetSlug = req.params.slug
 
     // if patching, only check for duplicate if slug is changing
-    if (req.method === 'PATCH' && slug === targetSlug) {
-        return next()
+    if (req.method === 'PATCH') {
+        if (slug === req.params.slug) {
+            return next()
+        }
     }
 
     const query = 'SELECT COUNT(*) FROM movies WHERE slug = $1'
