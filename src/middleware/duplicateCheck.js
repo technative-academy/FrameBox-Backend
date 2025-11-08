@@ -1,6 +1,7 @@
 import ConflictError from '../errors/ConflictError.js'
 import { db } from '../db/db.js'
 
+// requires slug to be set in body
 export async function dupilcateCheckMovie(req, res, next) {
     const slug = req.body.slug
     const targetSlug = req.params.slug
