@@ -68,7 +68,45 @@ playlistRouter.get('/:slug', async (req, res) => {
     res.status(200).json(result.rows[0])
 })
 
+// Update the playlist's info
 playlistRouter.patch('/:slug', async (req, res) => {
+    const slug = req.params.slug
+    const incomingPatch = req.body
+
+    const fields = []
+    const values = []
+
+    if (incomingPatch.title) {
+        fields.push(`title = $${fields.length + 1}`)
+        values.push(incomingPatch.title)
+        fields.push(`slug = $${fields.length + 1}`)
+        values.push(
+            slugify(incomingPatch.title, {
+                replacement: '-',
+                remove: /[*+~.()'"!:@]/g,
+                lower: true,
+            })
+        )
+
+        // a risk of potentially same slugs arises here: to be solved later
+    }
+    if (incomingPatch.summary) {
+        fields.push(`summary = $${fields.length + 1}`)
+        values.push(incomingPatch.summary)
+    }
+
+    const sql = `
+    UPDATE playlists 
+    SET ${fields.join(', ')} 
+    WHERE "slug" = $${values.length}
+    `
+
+    const result = await db.query(sql, values)
+
+    res.status(201).json(`Entry "${slug}" has been succesfully updated.`)
+})
+
+/*playlistRouter.patch('/:slug', async (req, res) => {
     let isRemovingEntry = false
     // will change depending on whether the movie is already in the playlist or not
 
@@ -158,7 +196,7 @@ playlistRouter.patch('/:slug', async (req, res) => {
     }
 
     res.status(201).json(`Entry "${slug}" has been succesfully updated.`)
-})
+})*/
 
 playlistRouter.delete('/:slug', async (req, res) => {
     const slug = req.params.slug
