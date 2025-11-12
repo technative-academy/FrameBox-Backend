@@ -5,7 +5,7 @@ import NotFoundError from '../errors/NotFoundError.js'
 import {
     validateMovieExists,
     validateMovieReq,
-} from '../middleware/validateMovie.js'
+} from '../middleware/validate.js'
 import { slugIdentifier } from '../middleware/slugIdentifier.js'
 import { dupilcateCheckMovie } from '../middleware/duplicateCheck.js'
 import authenticateToken from '../middleware/auth.js'

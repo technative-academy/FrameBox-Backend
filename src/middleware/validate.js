@@ -82,11 +82,14 @@ export async function validateMovieExists(req, res, next) {
     next()
 }
 
-export async function validatePlaylistExists(req, res, next) {
+export async function validatePlaylistReq(req, res, next) {
 
     const reqObjKeys = Object.keys(req.body)
-    const { title, description, img } = req.body
+    const {title, summary, movies} = req.body
 
-    if (reqObjKeys === 0)
+    // if req.body is empty
+    if (reqObjKeys.length === 0) {
+        throw new InvalidDataError('No data provided for update / creation.')
+    }
     
 }
