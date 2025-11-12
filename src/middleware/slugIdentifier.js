@@ -12,6 +12,8 @@ export function slugIdentifier(req, res, next) {
             lower: true,
         })
         req.body.slug = slug
+    } else {
+        req.body.slug = req.params.slug
     }
 
     next()
