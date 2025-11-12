@@ -7,12 +7,16 @@ dotenv.config()
 
 // Function to generate an access token that expires in 15 mins
 const generateAccessToken = (user) => {
-    return jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '15m' })
+    return jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {
+        expiresIn: process.env.ACCESS_EXPIRY_TIME,
+    })
 }
 
 // Function to generate a refresh token that expires in 7 days
 const generateRefreshToken = (user) => {
-    return jwt.sign(user, process.env.REFRESH_TOKEN_SECRET, { expiresIn: '7d' })
+    return jwt.sign(user, process.env.REFRESH_TOKEN_SECRET, {
+        expiresIn: process.env.REFRESH_EXPIRY_TIME,
+    })
 }
 
 const registerUser = async (username, email, password, bio) => {
