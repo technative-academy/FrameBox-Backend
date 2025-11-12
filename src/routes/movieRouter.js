@@ -8,6 +8,7 @@ import {
 } from '../middleware/validateMovie.js'
 import { slugIdentifier } from '../middleware/slugIdentifier.js'
 import { dupilcateCheckMovie } from '../middleware/duplicateCheck.js'
+import authenticateToken from '../middleware/auth.js'
 
 const movieRouter = Router()
 
@@ -42,6 +43,7 @@ movieRouter.get('/:slug', async (req, res) => {
 //update movie by name (slug)
 movieRouter.patch(
     '/:slug',
+    //authenticateToken,
     validateMovieExists,
     validateMovieReq,
     slugIdentifier,
@@ -87,14 +89,22 @@ movieRouter.patch(
     }
 )
 
-movieRouter.delete('/:slug', validateMovieExists, async (req, res) => {
-    const slug = req.params.slug
-    const result = await db.query('DELETE FROM movies WHERE slug = $1', [slug])
-    res.status(204).end()
-})
+movieRouter.delete(
+    '/:slug',
+    //authenticateToken,
+    validateMovieExists,
+    async (req, res) => {
+        const slug = req.params.slug
+        const result = await db.query('DELETE FROM movies WHERE slug = $1', [
+            slug,
+        ])
+        res.status(204).end()
+    }
+)
 
 movieRouter.post(
     '/',
+    //authenticateToken,
     validateMovieReq,
     slugIdentifier,
     dupilcateCheckMovie,
