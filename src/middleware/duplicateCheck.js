@@ -1,0 +1,22 @@
+import ConflictError from '../errors/ConflictError.js'
+import { db } from '../db/db.js'
+
+// requires slug to be set in body
+export async function dupilcateCheckMovie(req, res, next) {
+    const slug = req.body.slug
+
+    // if patching, only check for duplicate if slug is changing
+    if (req.method === 'PATCH') {
+        if (slug === req.params.slug) {
+            return next()
+        }
+    }
+
+    const query = 'SELECT COUNT(*) FROM movies WHERE slug = $1'
+    const result = await db.query(query, [slug])
+    if (parseInt(result.rows[0].count) > 0) {
+        throw new ConflictError(`Movie with slug "${slug}" already exists.`)
+    }
+
+    next()
+}

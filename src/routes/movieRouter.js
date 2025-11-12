@@ -1,11 +1,13 @@
 import { Router } from 'express'
-import {
-    getTestMovie,
-    getTestMovies,
-    updateTestMovie,
-} from '../test-values/movieTestValues.js'
 import { db } from '../db/db.js'
 import slugify from 'slugify'
+import NotFoundError from '../errors/NotFoundError.js'
+import {
+    validateMovieExists,
+    validateMovieReq,
+} from '../middleware/validateMovie.js'
+import { slugIdentifier } from '../middleware/slugIdentifier.js'
+import { dupilcateCheckMovie } from '../middleware/duplicateCheck.js'
 
 const movieRouter = Router()
 
@@ -14,6 +16,11 @@ movieRouter.get('/', async (req, res) => {
     const result = await db.query(
         'SELECT m.slug, m.title, m.description, m.date_added, m.img FROM movies AS m'
     )
+
+    if (result.rowCount == 0) {
+        throw new NotFoundError('No movies found.')
+    }
+
     res.status(200).json(result.rows)
 })
 
@@ -24,98 +31,94 @@ movieRouter.get('/:slug', async (req, res) => {
         'SELECT m.slug, m.title, m.description, m.date_added, m.img FROM movies AS m WHERE slug = $1',
         [slug]
     )
-    result.rowCount == 0
-        ? res.status(404).json({
-              status: 404,
-              message: `entry with the slug "${slug}" was not found.`,
-          })
-        : null
-    res.status(200).json(result.rows)
+
+    if (result.rowCount == 0) {
+        throw new NotFoundError(`Movie "${slug}" not found.`)
+    }
+
+    res.status(200).json(result.rows[0])
 })
 
 //update movie by name (slug)
-movieRouter.patch('/:slug', async (req, res) => {
-    const slug = req.params.slug
-    const incomingPatch = req.body
+movieRouter.patch(
+    '/:slug',
+    validateMovieExists,
+    validateMovieReq,
+    slugIdentifier,
+    dupilcateCheckMovie,
+    async (req, res) => {
+        const slug = req.params.slug
+        const incomingPatch = req.body
 
-    const fields = []
-    const values = []
+        const fields = []
+        const values = []
 
-    if (incomingPatch.title) {
-        fields.push(`title = $${fields.length + 1}`)
-        values.push(incomingPatch.title)
-        fields.push(`slug = $${fields.length + 1}`)
-        values.push(
-            slugify(incomingPatch.title, {
-                replacement: '-',
-                remove: /[*+~.()'"!:@]/g,
-                lower: true,
-            })
-        )
+        if (incomingPatch.title) {
+            fields.push(`title = $${fields.length + 1}`)
+            values.push(incomingPatch.title)
+            fields.push(`slug = $${fields.length + 1}`)
+            values.push(incomingPatch.slug)
+        }
+        if (incomingPatch.description) {
+            fields.push(`description = $${fields.length + 1}`)
+            values.push(incomingPatch.description)
+        }
+        if (incomingPatch.img) {
+            fields.push(`img = $${fields.length + 1}`)
+            values.push(incomingPatch.img)
+        }
 
-        // a risk of potentially same slugs arises here: to be solved later
-    }
-    if (incomingPatch.description) {
-        fields.push(`description = $${fields.length + 1}`)
-        values.push(incomingPatch.description)
-    }
-    if (incomingPatch.img) {
-        fields.push(`img = $${fields.length + 1}`)
-        values.push(incomingPatch.img)
-    }
-    if (fields.length === 0) {
-        return res.status(400).json({ message: 'No valid fields to update.' })
-    }
+        //pushing initial slug to specify which entry to patch
+        values.push(slug)
 
-    //pushing initial slug to specify which entry to patch
-    values.push(slug)
-
-    const sql = `
-    UPDATE movies 
-    SET ${fields.join(', ')} 
+        const sql = `
+    UPDATE movies
+    SET ${fields.join(', ')}
     WHERE "slug" = $${values.length}
+    RETURNING slug, title, description, date_added, img;
     `
 
-    const result = await db.query(sql, values)
+        const result = await db.query(sql, values)
 
-    res.status(201).json(`Entry "${slug}" has been succesfully updated.`)
-})
+        res.status(200).json({
+            message: `Entry "${slug}" has been succesfully updated.`,
+            movie: result.rows[0],
+        })
+    }
+)
 
-movieRouter.delete('/:slug', async (req, res) => {
+movieRouter.delete('/:slug', validateMovieExists, async (req, res) => {
     const slug = req.params.slug
     const result = await db.query('DELETE FROM movies WHERE slug = $1', [slug])
     res.status(204).end()
 })
 
-movieRouter.post('/', async (req, res) => {
-    const incomingPost = req.body
+movieRouter.post(
+    '/',
+    validateMovieReq,
+    slugIdentifier,
+    dupilcateCheckMovie,
+    async (req, res) => {
+        const incomingPost = req.body
 
-    if (!incomingPost.title) {
-        return res.status(400).json({ message: 'Title required to create.' })
-    }
-
-    const slug = slugify(incomingPost.title, {
-        replacement: '-',
-        remove: /[*+~.()'"!:@]/g,
-        lower: true,
-    })
-
-    const sql = `
+        const sql = `
             INSERT INTO movies (slug, title, description, date_added, img)
-            VALUES ($1, $2, $3, NOW(), $4);
+            VALUES ($1, $2, $3, NOW(), $4)
+            RETURNING slug, title, description, date_added, img;
         `
 
-    const result = await db.query(sql, [
-        slug,
-        incomingPost.title,
-        incomingPost.description || null,
-        incomingPost.img || null,
-    ])
+        const result = await db.query(sql, [
+            incomingPost.slug,
+            incomingPost.title,
+            incomingPost.description || null,
+            incomingPost.img || null,
+        ])
 
-    res.status(201).json({
-        message: `Movie "${incomingPost.title}" has been successfully created.`,
-        movie: result.rows[0],
-    })
-})
+        res.status(201).json({
+            message: `Movie "${incomingPost.title}" has been successfully created.`,
+            movie: result.rows[0],
+        })
+    }
+)
 
 export default movieRouter
