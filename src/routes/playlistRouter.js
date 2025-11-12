@@ -5,7 +5,7 @@ import slugify from 'slugify'
 
 const playlistRouter = Router()
 
-playlistRouter.use('/:slug/movies', playlistMovieRouter)
+//playlistRouter.use('/:slug/movies', playlistMovieRouter)
 
 playlistRouter.get('/', async (req, res) => {
     const result = await db.query(
@@ -106,7 +106,40 @@ playlistRouter.patch('/:slug', async (req, res) => {
     res.status(201).json(`Entry "${slug}" has been succesfully updated.`)
 })
 
-/*playlistRouter.patch('/:slug', async (req, res) => {
+//Add movies to a playlist
+playlistRouter.post('/:slug/movies', async (req, res) => {
+    const slug = req.params.slug
+    const incomingPost = req.body
+    const moviesSlugs = incomingPost.movies
+    const sqlInsertMovie = `
+        INSERT INTO playlist_movies
+        VALUES ($1, $2) 
+        `
+
+    const resultPlaylistId = await db.query(
+        `SELECT p.id FROM playlists AS p WHERE p.slug = $1`,
+        [slug]
+    )
+    const playlistId = resultPlaylistId.rows[0].id
+
+    for (let i = 0; i < moviesSlugs.length; i += 1) {
+        const resultMovieId = await db.query(
+            `SELECT m.id FROM movies AS m WHERE m.slug = $1`,
+            [moviesSlugs[i]]
+        )
+        const movieId = resultMovieId.rows[0].id
+        const resultInsertMovie = await db.query(sqlInsertMovie, [
+            playlistId,
+            movieId,
+        ])
+    }
+
+    res.status(201).json(
+        `The following movies: ${moviesSlugs} have been added to "${slug}" playlist.`
+    )
+})
+
+playlistRouter.patch('/:slug', async (req, res) => {
     let isRemovingEntry = false
     // will change depending on whether the movie is already in the playlist or not
 
@@ -196,7 +229,7 @@ playlistRouter.patch('/:slug', async (req, res) => {
     }
 
     res.status(201).json(`Entry "${slug}" has been succesfully updated.`)
-})*/
+})
 
 playlistRouter.delete('/:slug', async (req, res) => {
     const slug = req.params.slug
