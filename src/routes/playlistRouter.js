@@ -139,6 +139,38 @@ playlistRouter.post('/:slug/movies', async (req, res) => {
     )
 })
 
+playlistRouter.delete('/:slug/movies', async (req, res) => {
+    const slug = req.params.slug
+    const incomingPost = req.body
+    const moviesSlugs = incomingPost.movies
+    const sqlRemoveMovie = `
+        DELETE FROM playlist_movies
+        WHERE playlist_id = $1 AND movie_id = $2
+        `
+
+    const resultPlaylistId = await db.query(
+        `SELECT p.id FROM playlists AS p WHERE p.slug = $1`,
+        [slug]
+    )
+    const playlistId = resultPlaylistId.rows[0].id
+
+    for (let i = 0; i < moviesSlugs.length; i += 1) {
+        const resultMovieId = await db.query(
+            `SELECT m.id FROM movies AS m WHERE m.slug = $1`,
+            [moviesSlugs[i]]
+        )
+        const movieId = resultMovieId.rows[0].id
+        const resultRemoveMovie = await db.query(sqlRemoveMovie, [
+            playlistId,
+            movieId,
+        ])
+    }
+
+    res.status(201).json(
+        `The following movies: ${moviesSlugs} have been deleted from "${slug}" playlist.`
+    )
+})
+
 playlistRouter.patch('/:slug', async (req, res) => {
     let isRemovingEntry = false
     // will change depending on whether the movie is already in the playlist or not
