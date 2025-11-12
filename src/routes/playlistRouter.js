@@ -1,36 +1,10 @@
 import { Router } from 'express'
-import playlistMovieRouter from './playlistMovieRouter.js'
 import { db } from '../db/db.js'
 import slugify from 'slugify'
 
 const playlistRouter = Router()
 
-playlistRouter.use('/:slug/movies', playlistMovieRouter)
-
-playlistRouter.get('/', async (req, res) => {
-    const result = await db.query(
-        `SELECT
-        p.slug,
-        p.title,
-        p.summary,
-        p.date_created,
-        COALESCE(
-            json_agg(m.slug) FILTER (WHERE m.id IS NOT NULL),
-            '[]'
-        ) AS movies,
-        u.username
-        FROM playlists p
-        LEFT JOIN playlist_movies pm ON pm.playlist_id = p.id
-        LEFT JOIN movies m ON m.id = pm.movie_id
-        LEFT JOIN users u ON u.id = p.user_id
-        GROUP BY p.id, u.username;`
-    )
-    res.status(200).json(result.rows)
-})
-
-playlistRouter.get('/:slug', async (req, res) => {
-    const slug = req.params.slug
-    const sql = `
+const sqlGetPlaylist = `
     SELECT
     p.slug,
     p.title,
@@ -57,7 +31,33 @@ playlistRouter.get('/:slug', async (req, res) => {
     GROUP BY p.id, u.username;
 
     `
-    const result = await db.query(sql, [slug])
+//playlistRouter.use('/:slug/movies', playlistMovieRouter)
+
+playlistRouter.get('/', async (req, res) => {
+    const result = await db.query(
+        `SELECT
+        p.slug,
+        p.title,
+        p.summary,
+        p.date_created,
+        COALESCE(
+            json_agg(m.slug) FILTER (WHERE m.id IS NOT NULL),
+            '[]'
+        ) AS movies,
+        u.username
+        FROM playlists p
+        LEFT JOIN playlist_movies pm ON pm.playlist_id = p.id
+        LEFT JOIN movies m ON m.id = pm.movie_id
+        LEFT JOIN users u ON u.id = p.user_id
+        GROUP BY p.id, u.username;`
+    )
+    res.status(200).json(result.rows)
+})
+
+playlistRouter.get('/:slug', async (req, res) => {
+    const slug = req.params.slug
+
+    const result = await db.query(sqlGetPlaylist, [slug])
     result.rowCount == 0
         ? res.status(404).json({
               status: 404,
@@ -68,18 +68,10 @@ playlistRouter.get('/:slug', async (req, res) => {
     res.status(200).json(result.rows[0])
 })
 
+// Update the playlist's info
 playlistRouter.patch('/:slug', async (req, res) => {
-    let isRemovingEntry = false
-    // will change depending on whether the movie is already in the playlist or not
-
     const slug = req.params.slug
     const incomingPatch = req.body
-    const resultPlaylistId = await db.query(
-        `SELECT p.id FROM playlists AS p WHERE p.slug = $1`,
-        [slug]
-    )
-    const playlistId = resultPlaylistId.rows[0].id
-    let movieId = null
 
     const fields = []
     const values = []
@@ -102,62 +94,82 @@ playlistRouter.patch('/:slug', async (req, res) => {
         fields.push(`summary = $${fields.length + 1}`)
         values.push(incomingPatch.summary)
     }
-    if (incomingPatch.movie) {
-        const resultMovieId = await db.query(
-            `SELECT m.id FROM movies AS m WHERE m.slug = $1`,
-            [incomingPatch.movie]
-        )
 
-        // I could as well use COALESCE() here, to group the movies if we had a whole array,
-        // but will do later (another layer of complexity)
-
-        movieId = resultMovieId.rows[0].id
-        const resultMovie = await db.query(
-            `SELECT * FROM playlist_movies AS pm WHERE pm.playlist_id = $1 AND pm.movie_id = $2`,
-            [playlistId, movieId]
-        )
-        resultMovie.rowCount === 0
-            ? (isRemovingEntry = false)
-            : (isRemovingEntry = true)
-    }
-    if (fields.length === 0) {
-        return res.status(400).json({ message: 'No valid fields to update.' })
-    }
-
-    //pushing initial slug to specify which entry to patch
-    values.push(slug)
-
-    const sqlPlaylistInfo = `
+    const sql = `
     UPDATE playlists 
     SET ${fields.join(', ')} 
     WHERE "slug" = $${values.length}
     `
 
-    const resultPlaylistInfo = await db.query(sqlPlaylistInfo, values)
+    const result = await db.query(sql, values)
 
-    if (isRemovingEntry) {
-        const sqlRemoveMovie = `
-        DELETE FROM playlist_movies
-        WHERE playlist_id = $1 AND movie_id = $2
-        `
+    res.status(201).json(`Entry "${slug}" has been succesfully updated.`)
+})
 
-        const resultRemoveMovie = await db.query(sqlRemoveMovie, [
-            playlistId,
-            movieId,
-        ])
-    } else {
-        const sqlInsertMovie = `
+//Add movies to a playlist
+playlistRouter.post('/:slug/movies', async (req, res) => {
+    const slug = req.params.slug
+    const incomingPost = req.body
+    const moviesSlugs = incomingPost.movies
+    const sqlInsertMovie = `
         INSERT INTO playlist_movies
         VALUES ($1, $2) 
         `
-        console.log(playlistId)
+
+    const resultPlaylistId = await db.query(
+        `SELECT p.id FROM playlists AS p WHERE p.slug = $1`,
+        [slug]
+    )
+    const playlistId = resultPlaylistId.rows[0].id
+
+    //can rid the additional queries
+    for (let i = 0; i < moviesSlugs.length; i += 1) {
+        const resultMovieId = await db.query(
+            `SELECT m.id FROM movies AS m WHERE m.slug = $1`,
+            [moviesSlugs[i]]
+        )
+        const movieId = resultMovieId.rows[0].id
         const resultInsertMovie = await db.query(sqlInsertMovie, [
             playlistId,
             movieId,
         ])
     }
 
-    res.status(201).json(`Entry "${slug}" has been succesfully updated.`)
+    const resultResponse = await db.query(sqlGetPlaylist, [slug])
+    console.log(resultResponse)
+    res.status(201).json(resultResponse.rows)
+})
+
+playlistRouter.delete('/:slug/movies', async (req, res) => {
+    const slug = req.params.slug
+    const incomingPost = req.body
+    const moviesSlugs = incomingPost.movies
+    const sqlRemoveMovie = `
+        DELETE FROM playlist_movies
+        WHERE playlist_id = $1 AND movie_id = $2
+        `
+
+    const resultPlaylistId = await db.query(
+        `SELECT p.id FROM playlists AS p WHERE p.slug = $1`,
+        [slug]
+    )
+    const playlistId = resultPlaylistId.rows[0].id
+
+    for (let i = 0; i < moviesSlugs.length; i += 1) {
+        const resultMovieId = await db.query(
+            `SELECT m.id FROM movies AS m WHERE m.slug = $1`,
+            [moviesSlugs[i]]
+        )
+        const movieId = resultMovieId.rows[0].id
+        const resultRemoveMovie = await db.query(sqlRemoveMovie, [
+            playlistId,
+            movieId,
+        ])
+    }
+
+    res.status(201).json(
+        `The following movies: ${moviesSlugs} have been deleted from "${slug}" playlist.`
+    )
 })
 
 playlistRouter.delete('/:slug', async (req, res) => {
