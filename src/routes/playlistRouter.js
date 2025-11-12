@@ -1,5 +1,4 @@
 import { Router } from 'express'
-import playlistMovieRouter from './playlistMovieRouter.js'
 import { db } from '../db/db.js'
 import slugify from 'slugify'
 
