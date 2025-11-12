@@ -4,32 +4,7 @@ import slugify from 'slugify'
 
 const playlistRouter = Router()
 
-//playlistRouter.use('/:slug/movies', playlistMovieRouter)
-
-playlistRouter.get('/', async (req, res) => {
-    const result = await db.query(
-        `SELECT
-        p.slug,
-        p.title,
-        p.summary,
-        p.date_created,
-        COALESCE(
-            json_agg(m.slug) FILTER (WHERE m.id IS NOT NULL),
-            '[]'
-        ) AS movies,
-        u.username
-        FROM playlists p
-        LEFT JOIN playlist_movies pm ON pm.playlist_id = p.id
-        LEFT JOIN movies m ON m.id = pm.movie_id
-        LEFT JOIN users u ON u.id = p.user_id
-        GROUP BY p.id, u.username;`
-    )
-    res.status(200).json(result.rows)
-})
-
-playlistRouter.get('/:slug', async (req, res) => {
-    const slug = req.params.slug
-    const sql = `
+const sqlGetPlaylist = `
     SELECT
     p.slug,
     p.title,
@@ -56,7 +31,33 @@ playlistRouter.get('/:slug', async (req, res) => {
     GROUP BY p.id, u.username;
 
     `
-    const result = await db.query(sql, [slug])
+//playlistRouter.use('/:slug/movies', playlistMovieRouter)
+
+playlistRouter.get('/', async (req, res) => {
+    const result = await db.query(
+        `SELECT
+        p.slug,
+        p.title,
+        p.summary,
+        p.date_created,
+        COALESCE(
+            json_agg(m.slug) FILTER (WHERE m.id IS NOT NULL),
+            '[]'
+        ) AS movies,
+        u.username
+        FROM playlists p
+        LEFT JOIN playlist_movies pm ON pm.playlist_id = p.id
+        LEFT JOIN movies m ON m.id = pm.movie_id
+        LEFT JOIN users u ON u.id = p.user_id
+        GROUP BY p.id, u.username;`
+    )
+    res.status(200).json(result.rows)
+})
+
+playlistRouter.get('/:slug', async (req, res) => {
+    const slug = req.params.slug
+
+    const result = await db.query(sqlGetPlaylist, [slug])
     result.rowCount == 0
         ? res.status(404).json({
               status: 404,
@@ -121,6 +122,7 @@ playlistRouter.post('/:slug/movies', async (req, res) => {
     )
     const playlistId = resultPlaylistId.rows[0].id
 
+    //can rid the additional queries
     for (let i = 0; i < moviesSlugs.length; i += 1) {
         const resultMovieId = await db.query(
             `SELECT m.id FROM movies AS m WHERE m.slug = $1`,
@@ -133,9 +135,9 @@ playlistRouter.post('/:slug/movies', async (req, res) => {
         ])
     }
 
-    res.status(201).json(
-        `The following movies: ${moviesSlugs} have been added to "${slug}" playlist.`
-    )
+    const resultResponse = await db.query(sqlGetPlaylist, [slug])
+    console.log(resultResponse)
+    res.status(201).json(resultResponse.rows)
 })
 
 playlistRouter.delete('/:slug/movies', async (req, res) => {
