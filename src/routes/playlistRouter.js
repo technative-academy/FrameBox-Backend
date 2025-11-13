@@ -34,7 +34,7 @@ const sqlGetPlaylist = `
     `
 //playlistRouter.use('/:slug/movies', playlistMovieRouter)
 
-playlistRouter.get('/', authenticateToken, async (req, res) => {
+playlistRouter.get('/', async (req, res) => {
     const result = await db.query(
         `SELECT
         p.slug,
