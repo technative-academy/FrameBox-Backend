@@ -65,6 +65,9 @@ function createValidateReq(schemaObject) {
     }
 }
 
+export const validateMovieReq = createValidateReq(movieObjKeys)
+export const validatePlaylistReq = createValidateReq(playlistObjKeys)
+
 function createValidateExists(tableQuery) {
     return async function validateExists(req, res, next) {
         const slug = req.params.slug
@@ -76,6 +79,9 @@ function createValidateExists(tableQuery) {
         next()
     }
 }
+
+export const validateMovieExists = createValidateExists(movieExist)
+export const validatePlaylistExists = createValidateExists(playlistExist)
 
 export function validateMovieArray(req, res, next) {
     const { movies } = req.body
@@ -103,8 +109,54 @@ export function validateMovieArray(req, res, next) {
     next()
 }
 
-export const validateMovieReq = createValidateReq(movieObjKeys)
-export const validatePlaylistReq = createValidateReq(playlistObjKeys)
+export async function validateMoviesExists(req, res, next) {
+    const { movies } = req.body
+    const { slug } = req.params
 
-export const validateMovieExists = createValidateExists(movieExist)
-export const validatePlaylistExists = createValidateExists(playlistExist)
+    const result = await db.query(
+        `SELECT slug FROM movies WHERE slug = ANY($1)`,
+        [movies]
+    )
+    const existingMovies = result.rows.map((row) => row.slug)
+    const missingMovies = movies.filter(
+        (slug) => !existingMovies.includes(slug)
+    )
+
+    if (missingMovies.length > 0) {
+        throw new InvalidDataError(
+            `Some movies do not exist in our database: ${missingMovies.join(
+                ', '
+            )}`
+        )
+    }
+
+    const playlistMoviesQuery = await db.query(
+        `SELECT m.slug FROM movies m 
+            JOIN playlist_movies pm ON pm.movie_id = m.id
+            JOIN playlists p ON p.id = pm.playlist_id
+            WHERE p.slug = $1 `,
+        [slug]
+    )
+    const playlistMovies = playlistMoviesQuery.rows.map((row) => row.slug)
+
+    const alreadyInPlaylist = movies.filter((slug) =>
+        playlistMovies.includes(slug)
+    )
+    if (req.method === 'POST' && alreadyInPlaylist.length > 0) {
+        throw new InvalidDataError(
+            `Some movies are already in the playlist: ${alreadyInPlaylist.join(
+                ', '
+            )}`
+        )
+    }
+    const notInPlaylist = movies.filter(
+        (slug) => !playlistMovies.includes(slug)
+    )
+    if (req.method === 'DELETE' && notInPlaylist.length > 0) {
+        throw new InvalidDataError(
+            `Some movies are not in the playlist: ${notInPlaylist.join(', ')}`
+        )
+    }
+
+    next()
+}

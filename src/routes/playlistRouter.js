@@ -4,6 +4,7 @@ import slugify from 'slugify'
 import authenticateToken from '../middleware/auth.js'
 import {
     validateMovieArray,
+    validateMoviesExists,
     validatePlaylistExists,
     validatePlaylistReq,
 } from '../middleware/validate.js'
@@ -125,9 +126,10 @@ playlistRouter.patch(
 //Add movies to a playlist
 playlistRouter.post(
     '/:slug/movies',
+    //authenticateToken.
     validatePlaylistExists,
     validateMovieArray,
-    //authenticateToken,
+    validateMoviesExists,
     async (req, res) => {
         const slug = req.params.slug
         const incomingPost = req.body
@@ -164,6 +166,9 @@ playlistRouter.post(
 playlistRouter.delete(
     '/:slug/movies',
     //authenticateToken,
+    validatePlaylistExists,
+    validateMovieArray,
+    validateMoviesExists,
     async (req, res) => {
         const slug = req.params.slug
         const incomingPost = req.body
