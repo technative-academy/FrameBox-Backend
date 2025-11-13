@@ -4,8 +4,6 @@ import slugify from 'slugify'
 import authenticateToken from '../middleware/auth.js'
 import {
     validateMovieArray,
-    validateMovieExists,
-    validateMoviesExists,
     validatePlaylistExists,
     validatePlaylistReq,
     validateMoviesExistArray,

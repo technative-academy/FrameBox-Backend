@@ -3,8 +3,8 @@ import NotFoundError from '../errors/NotFoundError.js'
 import { db } from '../db/db.js'
 
 const MAX_TEXT_LENGTH = 2000
-const playlistObjKeys = [title, summary]
-const movieObjKeys = [title, description, img]
+const playlistObjKeys = ['title', 'summary']
+const movieObjKeys = ['title', 'description', 'img']
 const movieExist = 'SELECT slug FROM movies WHERE slug = $1'
 const playlistExist = 'SELECT slug FROM playlists WHERE slug = $1'
 

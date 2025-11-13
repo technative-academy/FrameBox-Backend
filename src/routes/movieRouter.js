@@ -7,7 +7,7 @@ import {
     validateMovieReq,
 } from '../middleware/validate.js'
 import { slugIdentifier } from '../middleware/slugIdentifier.js'
-import { dupilcateCheckMovie } from '../middleware/duplicateCheck.js'
+import { duplicateCheckMovie } from '../middleware/duplicateCheck.js'
 import authenticateToken from '../middleware/auth.js'
 
 const movieRouter = Router()
@@ -47,7 +47,7 @@ movieRouter.patch(
     validateMovieExists,
     validateMovieReq,
     slugIdentifier,
-    dupilcateCheckMovie,
+    duplicateCheckMovie,
     async (req, res) => {
         const slug = req.params.slug
         const incomingPatch = req.body
@@ -104,7 +104,7 @@ movieRouter.post(
     //authenticateToken,
     validateMovieReq,
     slugIdentifier,
-    dupilcateCheckMovie,
+    duplicateCheckMovie,
     async (req, res) => {
         const incomingPost = req.body
 
