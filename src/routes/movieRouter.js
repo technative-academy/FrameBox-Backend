@@ -121,10 +121,7 @@ movieRouter.post(
             incomingPost.img || null,
         ])
 
-        res.status(201).json({
-            message: `Movie "${incomingPost.title}" has been successfully created.`,
-            movie: result.rows[0],
-        })
+        res.status(201).json(result.rows[0])
     }
 )
 

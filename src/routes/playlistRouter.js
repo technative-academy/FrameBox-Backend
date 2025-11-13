@@ -222,78 +222,18 @@ playlistRouter.post(
     slugIdentifier,
     duplicateCheckPlaylist,
     async (req, res) => {
-        const incomingPost = req.body
-        const userId = 'a6705e10-8d8c-48f9-ae3e-31b1bfacb4cc'
-
-        //hardcoded for now
-
-        if (!incomingPost.title) {
-            return res
-                .status(400)
-                .json({ message: 'Title required to create.' })
-        }
-
-        const slug = slugify(incomingPost.title, {
-            replacement: '-',
-            remove: /[*+~.()'"!:@]/g,
-            lower: true,
-        })
-
-        const sqlCreatePLaylist = `
-            INSERT INTO playlists (slug, title, summary, date_created, user_id)
-            VALUES ($1, $2, $3, NOW(), $4);
+        const sql = `INSERT INTO playlists (slug, title, summary, date_created)
+        VALUES ($1, $2, $3, NOW())
+        RETURNING slug, title, summary, date_created;
         `
 
-        const resultCreatePlaylist = await db.query(sqlCreatePLaylist, [
-            slug,
-            incomingPost.title,
-            incomingPost.summary || null,
-            userId,
+        const result = await db.query(sql, [
+            req.body.slug,
+            req.body.title,
+            req.body.summary || null,
         ])
 
-        const resultPlaylistId = await db.query(
-            `SELECT p.id FROM playlists AS p WHERE p.slug = $1`,
-            [slug]
-        )
-        const playlistId = resultPlaylistId.rows[0].id
-
-        if (incomingPost.movies && incomingPost.movies.length > 0) {
-            // Get movie IDs from slugs
-            const movieSlugs = incomingPost.movies
-            const placeholderSlugs = movieSlugs
-                .map((_, i) => `$${i + 1}`)
-                .join(', ')
-            const sqlGetMoviesIds = `SELECT id FROM movies WHERE slug IN (${placeholderSlugs});`
-
-            // This is very smart. It turns out that SQL can check a list of items for match
-            // automatically using IN (Like Python does!!!!)
-
-            const resultGetMoviesIds = await db.query(
-                sqlGetMoviesIds,
-                movieSlugs
-            )
-            const movieIds = resultGetMoviesIds.rows.map((row) => row.id)
-
-            // Prepare bulk insert query
-            const insertValues = []
-            const params = []
-            let paramIndex = 1
-
-            for (const movieId of movieIds) {
-                insertValues.push(`($${paramIndex++}, $${paramIndex++})`)
-                params.push(playlistId, movieId)
-            }
-
-            const sqlFillPlaylist = `
-                INSERT INTO playlist_movies (playlist_id, movie_id)
-                VALUES ${insertValues.join(', ')}
-            `
-            await db.query(sqlFillPlaylist, params)
-        }
-
-        res.status(201).json({
-            message: `Playlist "${incomingPost.title}" has been successfully created.`,
-        })
+        res.status(201).json(result.rows[0])
     }
 )
 
