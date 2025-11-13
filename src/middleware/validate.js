@@ -77,6 +77,32 @@ function createValidateExists(tableQuery) {
     }
 }
 
+export function validateMovieArray(req, res, next) {
+    const { movies } = req.body
+
+    if (!movies || !Array.isArray(movies)) {
+        throw new InvalidDataError('No valid movies array provided.')
+    }
+
+    if (movies.length === 0) {
+        throw new InvalidDataError('Movies array cannot be empty.')
+    }
+
+    if (
+        !movies.every((item) => typeof item === 'string' && item.trim() !== '')
+    ) {
+        throw new InvalidDataError('All movies must be non-empty strings.')
+    }
+
+    if (!movies.every((item) => item.length <= MAX_TEXT_LENGTH)) {
+        throw new InvalidDataError(
+            `Each movie title must be at most ${MAX_TEXT_LENGTH} characters.`
+        )
+    }
+
+    next()
+}
+
 export const validateMovieReq = createValidateReq(movieObjKeys)
 export const validatePlaylistReq = createValidateReq(playlistObjKeys)
 

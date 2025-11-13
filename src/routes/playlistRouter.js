@@ -3,11 +3,13 @@ import { db } from '../db/db.js'
 import slugify from 'slugify'
 import authenticateToken from '../middleware/auth.js'
 import {
+    validateMovieArray,
     validatePlaylistExists,
     validatePlaylistReq,
 } from '../middleware/validate.js'
 import { slugIdentifier } from '../middleware/slugIdentifier.js'
 import { duplicateCheckPlaylist } from '../middleware/duplicateCheck.js'
+import NotFoundError from '../errors/NotFoundError.js'
 
 const playlistRouter = Router()
 
@@ -40,7 +42,7 @@ const sqlGetPlaylist = `
     `
 //playlistRouter.use('/:slug/movies', playlistMovieRouter)
 
-playlistRouter.get('/', authenticateToken, async (req, res) => {
+playlistRouter.get('/', async (req, res) => {
     const result = await db.query(
         `SELECT
         p.slug,
@@ -58,6 +60,11 @@ playlistRouter.get('/', authenticateToken, async (req, res) => {
         LEFT JOIN users u ON u.id = p.user_id
         GROUP BY p.id, u.username;`
     )
+
+    if (result.rowCount == 0) {
+        throw new NotFoundError('No playlists found.')
+    }
+
     res.status(200).json(result.rows)
 })
 
@@ -65,12 +72,10 @@ playlistRouter.get('/:slug', async (req, res) => {
     const slug = req.params.slug
 
     const result = await db.query(sqlGetPlaylist, [slug])
-    result.rowCount == 0
-        ? res.status(404).json({
-              status: 404,
-              message: `entry with the slug "${slug}" was not found.`,
-          })
-        : null
+
+    if (result.rowCount == 0) {
+        throw new NotFoundError(`Playlist "${slug}" not found.`)
+    }
 
     res.status(200).json(result.rows[0])
 })
@@ -101,21 +106,27 @@ playlistRouter.patch(
             values.push(incomingPatch.summary)
         }
 
+        //pushing initial slug to specify which entry to patch
+        values.push(slug)
+
         const sql = `
     UPDATE playlists 
     SET ${fields.join(', ')} 
     WHERE "slug" = $${values.length}
+    RETURNING slug, title, summary, date_created
     `
 
         const result = await db.query(sql, values)
 
-        res.status(201).json(`Entry "${slug}" has been succesfully updated.`)
+        res.status(200).json(result.rows[0])
     }
 )
 
 //Add movies to a playlist
 playlistRouter.post(
     '/:slug/movies',
+    validatePlaylistExists,
+    validateMovieArray,
     //authenticateToken,
     async (req, res) => {
         const slug = req.params.slug
@@ -146,8 +157,7 @@ playlistRouter.post(
         }
 
         const resultResponse = await db.query(sqlGetPlaylist, [slug])
-        console.log(resultResponse)
-        res.status(201).json(resultResponse.rows)
+        res.status(200).json(resultResponse.rows)
     }
 )
 

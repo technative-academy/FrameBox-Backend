@@ -82,10 +82,7 @@ movieRouter.patch(
 
         const result = await db.query(sql, values)
 
-        res.status(200).json({
-            message: `Entry "${slug}" has been succesfully updated.`,
-            movie: result.rows[0],
-        })
+        res.status(200).json(result.rows[0])
     }
 )
 
