@@ -4,9 +4,11 @@ import slugify from 'slugify'
 import authenticateToken from '../middleware/auth.js'
 import {
     validateMovieArray,
+    validateMovieExists,
     validateMoviesExists,
     validatePlaylistExists,
     validatePlaylistReq,
+    validateMoviesExistArray,
 } from '../middleware/validate.js'
 import { slugIdentifier } from '../middleware/slugIdentifier.js'
 import { duplicateCheckPlaylist } from '../middleware/duplicateCheck.js'
@@ -129,7 +131,7 @@ playlistRouter.post(
     //authenticateToken.
     validatePlaylistExists,
     validateMovieArray,
-    validateMoviesExists,
+    validateMoviesExistArray,
     async (req, res) => {
         const slug = req.params.slug
         const incomingPost = req.body
@@ -168,7 +170,7 @@ playlistRouter.delete(
     //authenticateToken,
     validatePlaylistExists,
     validateMovieArray,
-    validateMoviesExists,
+    validateMoviesExistArray,
     async (req, res) => {
         const slug = req.params.slug
         const incomingPost = req.body
@@ -196,15 +198,15 @@ playlistRouter.delete(
             ])
         }
 
-        res.status(201).json(
-            `The following movies: ${moviesSlugs} have been deleted from "${slug}" playlist.`
-        )
+        const resultResponse = await db.query(sqlGetPlaylist, [slug])
+        res.status(200).json(resultResponse.rows)
     }
 )
 
 playlistRouter.delete(
     '/:slug',
     //authenticateToken,
+    validatePlaylistExists,
     async (req, res) => {
         const slug = req.params.slug
         const result = await db.query('DELETE FROM playlists WHERE slug = $1', [
@@ -216,6 +218,9 @@ playlistRouter.delete(
 playlistRouter.post(
     '/',
     //authenticateToken,
+    validatePlaylistReq,
+    slugIdentifier,
+    duplicateCheckPlaylist,
     async (req, res) => {
         const incomingPost = req.body
         const userId = 'a6705e10-8d8c-48f9-ae3e-31b1bfacb4cc'

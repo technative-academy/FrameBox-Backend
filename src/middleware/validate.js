@@ -109,7 +109,7 @@ export function validateMovieArray(req, res, next) {
     next()
 }
 
-export async function validateMoviesExists(req, res, next) {
+export async function validateMoviesExistArray(req, res, next) {
     const { movies } = req.body
     const { slug } = req.params
 
