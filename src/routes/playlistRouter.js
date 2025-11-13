@@ -2,6 +2,12 @@ import { Router } from 'express'
 import { db } from '../db/db.js'
 import slugify from 'slugify'
 import authenticateToken from '../middleware/auth.js'
+import {
+    validatePlaylistExists,
+    validatePlaylistReq,
+} from '../middleware/validate.js'
+import { slugIdentifier } from '../middleware/slugIdentifier.js'
+import { duplicateCheckPlaylist } from '../middleware/duplicateCheck.js'
 
 const playlistRouter = Router()
 
@@ -73,6 +79,10 @@ playlistRouter.get('/:slug', async (req, res) => {
 playlistRouter.patch(
     '/:slug',
     //authenticateToken,
+    validatePlaylistExists,
+    validatePlaylistReq,
+    slugIdentifier,
+    duplicateCheckPlaylist,
     async (req, res) => {
         const slug = req.params.slug
         const incomingPatch = req.body
@@ -84,15 +94,7 @@ playlistRouter.patch(
             fields.push(`title = $${fields.length + 1}`)
             values.push(incomingPatch.title)
             fields.push(`slug = $${fields.length + 1}`)
-            values.push(
-                slugify(incomingPatch.title, {
-                    replacement: '-',
-                    remove: /[*+~.()'"!:@]/g,
-                    lower: true,
-                })
-            )
-
-            // a risk of potentially same slugs arises here: to be solved later
+            values.push(incomingPatch.slug)
         }
         if (incomingPatch.summary) {
             fields.push(`summary = $${fields.length + 1}`)
