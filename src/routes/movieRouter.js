@@ -5,9 +5,9 @@ import NotFoundError from '../errors/NotFoundError.js'
 import {
     validateMovieExists,
     validateMovieReq,
-} from '../middleware/validateMovie.js'
+} from '../middleware/validate.js'
 import { slugIdentifier } from '../middleware/slugIdentifier.js'
-import { dupilcateCheckMovie } from '../middleware/duplicateCheck.js'
+import { duplicateCheckMovie } from '../middleware/duplicateCheck.js'
 import authenticateToken from '../middleware/auth.js'
 
 const movieRouter = Router()
@@ -47,7 +47,7 @@ movieRouter.patch(
     validateMovieExists,
     validateMovieReq,
     slugIdentifier,
-    dupilcateCheckMovie,
+    duplicateCheckMovie,
     async (req, res) => {
         const slug = req.params.slug
         const incomingPatch = req.body
@@ -82,10 +82,7 @@ movieRouter.patch(
 
         const result = await db.query(sql, values)
 
-        res.status(200).json({
-            message: `Entry "${slug}" has been succesfully updated.`,
-            movie: result.rows[0],
-        })
+        res.status(200).json(result.rows[0])
     }
 )
 
@@ -107,7 +104,7 @@ movieRouter.post(
     //authenticateToken,
     validateMovieReq,
     slugIdentifier,
-    dupilcateCheckMovie,
+    duplicateCheckMovie,
     async (req, res) => {
         const incomingPost = req.body
 
@@ -124,10 +121,7 @@ movieRouter.post(
             incomingPost.img || null,
         ])
 
-        res.status(201).json({
-            message: `Movie "${incomingPost.title}" has been successfully created.`,
-            movie: result.rows[0],
-        })
+        res.status(201).json(result.rows[0])
     }
 )
 

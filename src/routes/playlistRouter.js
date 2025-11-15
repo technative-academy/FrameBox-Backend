@@ -2,6 +2,15 @@ import { Router } from 'express'
 import { db } from '../db/db.js'
 import slugify from 'slugify'
 import authenticateToken from '../middleware/auth.js'
+import {
+    validateMovieArray,
+    validatePlaylistExists,
+    validatePlaylistReq,
+    validateMoviesExistArray,
+} from '../middleware/validate.js'
+import { slugIdentifier } from '../middleware/slugIdentifier.js'
+import { duplicateCheckPlaylist } from '../middleware/duplicateCheck.js'
+import NotFoundError from '../errors/NotFoundError.js'
 
 const playlistRouter = Router()
 
@@ -52,6 +61,11 @@ playlistRouter.get('/', async (req, res) => {
         LEFT JOIN users u ON u.id = p.user_id
         GROUP BY p.id, u.username;`
     )
+
+    if (result.rowCount == 0) {
+        throw new NotFoundError('No playlists found.')
+    }
+
     res.status(200).json(result.rows)
 })
 
@@ -59,12 +73,10 @@ playlistRouter.get('/:slug', async (req, res) => {
     const slug = req.params.slug
 
     const result = await db.query(sqlGetPlaylist, [slug])
-    result.rowCount == 0
-        ? res.status(404).json({
-              status: 404,
-              message: `entry with the slug "${slug}" was not found.`,
-          })
-        : null
+
+    if (result.rowCount == 0) {
+        throw new NotFoundError(`Playlist "${slug}" not found.`)
+    }
 
     res.status(200).json(result.rows[0])
 })
@@ -73,6 +85,10 @@ playlistRouter.get('/:slug', async (req, res) => {
 playlistRouter.patch(
     '/:slug',
     //authenticateToken,
+    validatePlaylistExists,
+    validatePlaylistReq,
+    slugIdentifier,
+    duplicateCheckPlaylist,
     async (req, res) => {
         const slug = req.params.slug
         const incomingPatch = req.body
@@ -84,37 +100,36 @@ playlistRouter.patch(
             fields.push(`title = $${fields.length + 1}`)
             values.push(incomingPatch.title)
             fields.push(`slug = $${fields.length + 1}`)
-            values.push(
-                slugify(incomingPatch.title, {
-                    replacement: '-',
-                    remove: /[*+~.()'"!:@]/g,
-                    lower: true,
-                })
-            )
-
-            // a risk of potentially same slugs arises here: to be solved later
+            values.push(incomingPatch.slug)
         }
         if (incomingPatch.summary) {
             fields.push(`summary = $${fields.length + 1}`)
             values.push(incomingPatch.summary)
         }
 
+        //pushing initial slug to specify which entry to patch
+        values.push(slug)
+
         const sql = `
     UPDATE playlists 
     SET ${fields.join(', ')} 
     WHERE "slug" = $${values.length}
+    RETURNING slug, title, summary, date_created
     `
 
         const result = await db.query(sql, values)
 
-        res.status(201).json(`Entry "${slug}" has been succesfully updated.`)
+        res.status(200).json(result.rows[0])
     }
 )
 
 //Add movies to a playlist
 playlistRouter.post(
     '/:slug/movies',
-    //authenticateToken,
+    //authenticateToken.
+    validatePlaylistExists,
+    validateMovieArray,
+    validateMoviesExistArray,
     async (req, res) => {
         const slug = req.params.slug
         const incomingPost = req.body
@@ -144,14 +159,16 @@ playlistRouter.post(
         }
 
         const resultResponse = await db.query(sqlGetPlaylist, [slug])
-        console.log(resultResponse)
-        res.status(201).json(resultResponse.rows)
+        res.status(200).json(resultResponse.rows)
     }
 )
 
 playlistRouter.delete(
     '/:slug/movies',
     //authenticateToken,
+    validatePlaylistExists,
+    validateMovieArray,
+    validateMoviesExistArray,
     async (req, res) => {
         const slug = req.params.slug
         const incomingPost = req.body
@@ -179,15 +196,15 @@ playlistRouter.delete(
             ])
         }
 
-        res.status(201).json(
-            `The following movies: ${moviesSlugs} have been deleted from "${slug}" playlist.`
-        )
+        const resultResponse = await db.query(sqlGetPlaylist, [slug])
+        res.status(200).json(resultResponse.rows)
     }
 )
 
 playlistRouter.delete(
     '/:slug',
     //authenticateToken,
+    validatePlaylistExists,
     async (req, res) => {
         const slug = req.params.slug
         const result = await db.query('DELETE FROM playlists WHERE slug = $1', [
@@ -199,79 +216,22 @@ playlistRouter.delete(
 playlistRouter.post(
     '/',
     //authenticateToken,
+    validatePlaylistReq,
+    slugIdentifier,
+    duplicateCheckPlaylist,
     async (req, res) => {
-        const incomingPost = req.body
-        const userId = 'a6705e10-8d8c-48f9-ae3e-31b1bfacb4cc'
-
-        //hardcoded for now
-
-        if (!incomingPost.title) {
-            return res
-                .status(400)
-                .json({ message: 'Title required to create.' })
-        }
-
-        const slug = slugify(incomingPost.title, {
-            replacement: '-',
-            remove: /[*+~.()'"!:@]/g,
-            lower: true,
-        })
-
-        const sqlCreatePLaylist = `
-            INSERT INTO playlists (slug, title, summary, date_created, user_id)
-            VALUES ($1, $2, $3, NOW(), $4);
+        const sql = `INSERT INTO playlists (slug, title, summary, date_created)
+        VALUES ($1, $2, $3, NOW())
+        RETURNING slug, title, summary, date_created;
         `
 
-        const resultCreatePlaylist = await db.query(sqlCreatePLaylist, [
-            slug,
-            incomingPost.title,
-            incomingPost.summary || null,
-            userId,
+        const result = await db.query(sql, [
+            req.body.slug,
+            req.body.title,
+            req.body.summary || null,
         ])
 
-        const resultPlaylistId = await db.query(
-            `SELECT p.id FROM playlists AS p WHERE p.slug = $1`,
-            [slug]
-        )
-        const playlistId = resultPlaylistId.rows[0].id
-
-        if (incomingPost.movies && incomingPost.movies.length > 0) {
-            // Get movie IDs from slugs
-            const movieSlugs = incomingPost.movies
-            const placeholderSlugs = movieSlugs
-                .map((_, i) => `$${i + 1}`)
-                .join(', ')
-            const sqlGetMoviesIds = `SELECT id FROM movies WHERE slug IN (${placeholderSlugs});`
-
-            // This is very smart. It turns out that SQL can check a list of items for match
-            // automatically using IN (Like Python does!!!!)
-
-            const resultGetMoviesIds = await db.query(
-                sqlGetMoviesIds,
-                movieSlugs
-            )
-            const movieIds = resultGetMoviesIds.rows.map((row) => row.id)
-
-            // Prepare bulk insert query
-            const insertValues = []
-            const params = []
-            let paramIndex = 1
-
-            for (const movieId of movieIds) {
-                insertValues.push(`($${paramIndex++}, $${paramIndex++})`)
-                params.push(playlistId, movieId)
-            }
-
-            const sqlFillPlaylist = `
-                INSERT INTO playlist_movies (playlist_id, movie_id)
-                VALUES ${insertValues.join(', ')}
-            `
-            await db.query(sqlFillPlaylist, params)
-        }
-
-        res.status(201).json({
-            message: `Playlist "${incomingPost.title}" has been successfully created.`,
-        })
+        res.status(201).json(result.rows[0])
     }
 )
 
