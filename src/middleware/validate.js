@@ -175,9 +175,12 @@ export async function checkOwner(req, res, next) {
         [slug]
     )
     const authorID = authorCheckResult.rows[0].author
+
     if (userID !== authorID) {
         throw new UnauthorisedError(
             'Unauthorised - You did not create this playlist'
         )
     }
+
+    next()
 }
