@@ -1,6 +1,7 @@
 import InvalidDataError from '../errors/InvalidDataError.js'
 import NotFoundError from '../errors/NotFoundError.js'
 import { db } from '../db/db.js'
+import UnauthorisedError from '../errors/UnauthorisedError.js'
 
 const MAX_TEXT_LENGTH = 2000
 const playlistObjKeys = ['title', 'summary']
@@ -159,4 +160,24 @@ export async function validateMoviesExistArray(req, res, next) {
     }
 
     next()
+}
+
+export async function checkOwner(req, res, next) {
+    const userIDResult = db.query('SELECT id FROM users WHERE username = $1', [
+        req.user.username,
+    ])
+    const userID = userIDResult.rows[0].id
+
+    const { slug } = req.params
+
+    const authorCheckResult = db.query(
+        'SELECT author FROM playlists WHERE slug = $1',
+        [slug]
+    )
+    const authorID = authorCheckResult.rows[0].author
+    if (userID !== authorID) {
+        throw new UnauthorisedError(
+            'Unauthorised - You did not create this playlist'
+        )
+    }
 }
