@@ -17,23 +17,20 @@ cloudinary.config({
     api_secret: process.env.CLOUDINARY_API_SECRET,
 })
 
-imageRouter.get(
-    '/',
-    //authenticateToken,
-    (req, res) => {
-        res.send(`
+imageRouter.get('/', authenticateToken, (req, res) => {
+    res.send(`
     <h1>File Upload Demo</h1>
     <form action="images/playlists/inception" method="post" enctype="multipart/form-data">
         <input type="file" name="image" />
         <button type="submit">Upload</button>
     </form>
     `)
-    }
-)
+})
 
 // Upload endpoint
 imageRouter.post(
     '/playlists/:slug',
+    authenticateToken,
     upload.single('image'),
     async (req, res) => {
         const result = await cloudinary.uploader.upload(req.file.path, {
@@ -59,29 +56,34 @@ imageRouter.post(
     }
 )
 // Upload endpoint
-imageRouter.post('/movies/:slug', upload.single('image'), async (req, res) => {
-    const result = await cloudinary.uploader.upload(req.file.path, {
-        folder: 'user_uploads',
-    })
-    const slug = req.params.slug
-    const table = `movies`
+imageRouter.post(
+    '/movies/:slug',
+    authenticateToken,
+    upload.single('image'),
+    async (req, res) => {
+        const result = await cloudinary.uploader.upload(req.file.path, {
+            folder: 'user_uploads',
+        })
+        const slug = req.params.slug
+        const table = `movies`
 
-    await fs.promises.unlink(req.file.path)
+        await fs.promises.unlink(req.file.path)
 
-    const url = cloudinary.url(result.public_id, {
-        transformation: [
-            {
-                width: 400,
-                height: 450,
-            },
-        ],
-    })
+        const url = cloudinary.url(result.public_id, {
+            transformation: [
+                {
+                    width: 400,
+                    height: 450,
+                },
+            ],
+        })
 
-    const resultDb = await db.query(
-        `UPDATE ${table} SET img = $1 WHERE slug = $2`,
-        [url, slug]
-    )
-    res.json({ imageUrl: url })
-})
+        const resultDb = await db.query(
+            `UPDATE ${table} SET img = $1 WHERE slug = $2`,
+            [url, slug]
+        )
+        res.json({ imageUrl: url })
+    }
+)
 
 export default imageRouter
