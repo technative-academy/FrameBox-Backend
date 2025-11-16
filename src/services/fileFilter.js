@@ -7,6 +7,6 @@ export function imageFileFilter(req, file, cb) {
     if (allowed.includes(file.mimetype)) {
         cb(null, true)
     } else {
-        cb(new InvalidDataError('Invalid file type'), false)
+        cb(null, false)
     }
 }

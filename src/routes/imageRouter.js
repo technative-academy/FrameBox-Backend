@@ -6,6 +6,7 @@ import { db } from '../db/db.js'
 import fs from 'fs'
 import authenticateToken from '../middleware/auth.js'
 import { imageFileFilter } from '../services/fileFilter.js'
+import { validateImageSuccessfulUpload } from '../middleware/validate.js'
 
 dotenv.config()
 const imageRouter = Router()
@@ -42,6 +43,7 @@ imageRouter.get(
 imageRouter.post(
     '/playlists/:slug',
     upload.single('image'),
+    validateImageSuccessfulUpload,
     async (req, res) => {
         const result = await cloudinary.uploader.upload(req.file.path, {
             folder: 'user_uploads',
@@ -65,28 +67,33 @@ imageRouter.post(
     }
 )
 // Upload endpoint
-imageRouter.post('/movies/:slug', upload.single('image'), async (req, res) => {
-    const result = await cloudinary.uploader.upload(req.file.path, {
-        folder: 'user_uploads',
-    })
-    const slug = req.params.slug
+imageRouter.post(
+    '/movies/:slug',
+    upload.single('image'),
+    validateImageSuccessfulUpload,
+    async (req, res) => {
+        const result = await cloudinary.uploader.upload(req.file.path, {
+            folder: 'user_uploads',
+        })
+        const slug = req.params.slug
 
-    await fs.promises.unlink(req.file.path)
+        await fs.promises.unlink(req.file.path)
 
-    const url = cloudinary.url(result.public_id, {
-        transformation: [
-            {
-                width: 400,
-                height: 450,
-            },
-        ],
-    })
+        const url = cloudinary.url(result.public_id, {
+            transformation: [
+                {
+                    width: 400,
+                    height: 450,
+                },
+            ],
+        })
 
-    const resultDb = await db.query(
-        `UPDATE movies SET img = $1 WHERE slug = $2`,
-        [url, slug]
-    )
-    res.json({ imageUrl: url })
-})
+        const resultDb = await db.query(
+            `UPDATE movies SET img = $1 WHERE slug = $2`,
+            [url, slug]
+        )
+        res.json({ imageUrl: url })
+    }
+)
 
 export default imageRouter
