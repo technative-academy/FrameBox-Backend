@@ -5,10 +5,17 @@ import dotenv from 'dotenv'
 import { db } from '../db/db.js'
 import fs from 'fs'
 import authenticateToken from '../middleware/auth.js'
+import { imageFileFilter } from '../services/fileFilter.js'
 
 dotenv.config()
 const imageRouter = Router()
-const upload = multer({ dest: './uploads/' }) // temporary storage
+const upload = multer({
+    dest: './uploads/',
+    limits: {
+        fileSize: 0.5 * 1024 * 1024, //0.5MB
+    },
+    fileFilter: imageFileFilter,
+}) // temporary storage, file size limits and sets fileFilter
 
 // Configure Cloudinary
 cloudinary.config({
@@ -40,7 +47,6 @@ imageRouter.post(
             folder: 'user_uploads',
         })
         const slug = req.params.slug
-        const table = `playlists`
 
         await fs.promises.unlink(req.file.path)
 
@@ -52,7 +58,7 @@ imageRouter.post(
         })
 
         const resultDb = await db.query(
-            `UPDATE ${table} SET img = $1 WHERE slug = $2`,
+            `UPDATE playlists SET img = $1 WHERE slug = $2`,
             [url, slug]
         )
         res.json({ imageUrl: url })
@@ -64,7 +70,6 @@ imageRouter.post('/movies/:slug', upload.single('image'), async (req, res) => {
         folder: 'user_uploads',
     })
     const slug = req.params.slug
-    const table = `movies`
 
     await fs.promises.unlink(req.file.path)
 
@@ -78,7 +83,7 @@ imageRouter.post('/movies/:slug', upload.single('image'), async (req, res) => {
     })
 
     const resultDb = await db.query(
-        `UPDATE ${table} SET img = $1 WHERE slug = $2`,
+        `UPDATE movies SET img = $1 WHERE slug = $2`,
         [url, slug]
     )
     res.json({ imageUrl: url })
