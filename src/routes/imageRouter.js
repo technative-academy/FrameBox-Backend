@@ -46,22 +46,19 @@ imageRouter.post(
     validateImageSuccessfulUpload,
     async (req, res) => {
         const result = await cloudinary.uploader.upload(req.file.path, {
-            folder: 'user_uploads',
+            upload_preset: 'FrameBox Image Upload',
         })
         const slug = req.params.slug
 
         await fs.promises.unlink(req.file.path)
 
-        const url = cloudinary.url(result.public_id, {
-            transformation: [
-                { height: 700, width: 700, crop: 'fill' },
-                { quality: 'auto:low' },
-            ],
-        })
+        //Set temp image and store image id
+        const url = cloudinary.url('awaiting_700_lqzlpx')
+        const publicId = result.public_id
 
         const resultDb = await db.query(
-            `UPDATE playlists SET img = $1 WHERE slug = $2`,
-            [url, slug]
+            `UPDATE playlists SET img = $1, img_id = $2 WHERE slug = $3`,
+            [url, publicId, slug]
         )
         res.json({ imageUrl: url })
     }
@@ -73,24 +70,19 @@ imageRouter.post(
     validateImageSuccessfulUpload,
     async (req, res) => {
         const result = await cloudinary.uploader.upload(req.file.path, {
-            folder: 'user_uploads',
+            upload_preset: 'FrameBox Image Upload',
         })
         const slug = req.params.slug
 
         await fs.promises.unlink(req.file.path)
 
-        const url = cloudinary.url(result.public_id, {
-            transformation: [
-                {
-                    width: 400,
-                    height: 450,
-                },
-            ],
-        })
+        //Set temp image and store image id
+        const url = cloudinary.url('awaiting_700_lqzlpx')
+        const publicId = result.public_id
 
         const resultDb = await db.query(
-            `UPDATE movies SET img = $1 WHERE slug = $2`,
-            [url, slug]
+            `UPDATE movies SET img = $1, img_id = $2 WHERE slug = $3`,
+            [url, publicId, slug]
         )
         res.json({ imageUrl: url })
     }
