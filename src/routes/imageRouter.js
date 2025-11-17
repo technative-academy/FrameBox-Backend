@@ -7,6 +7,7 @@ import fs from 'fs'
 import authenticateToken from '../middleware/auth.js'
 import { imageFileFilter } from '../services/fileFilter.js'
 import { validateImageSuccessfulUpload } from '../middleware/validate.js'
+import InvalidDataError from '../errors/InvalidDataError.js'
 
 dotenv.config()
 const imageRouter = Router()
@@ -87,5 +88,42 @@ imageRouter.post(
         res.json({ imageUrl: url })
     }
 )
+
+//webhook for cloudinary moderation
+imageRouter.post('/cloudinary/webhook', async (req, res) => {
+    const { publicId, moderationStatus } = req.body
+
+    if (!publicId || !moderationStatus) {
+        throw new InvalidDataError('Invalid Webhook')
+    }
+
+    if (moderationStatus !== 'approved') {
+        return res.status(200).end()
+    }
+
+    const url = cloudinary.url(publicId)
+
+    const movieRes = await db.query(
+        `UPDATE movies
+             SET approved = true, img = $1
+             WHERE img_id = $2
+             RETURNING slug`,
+        [url, publicId]
+    )
+
+    if (movieRes.rowCount > 0) {
+        return res.status(200).end()
+    }
+
+    const playlistRes = await db.query(
+        `UPDATE playlists
+             SET approved = true, img = $1
+             WHERE img_id = $2
+             RETURNING id`,
+        [url, publicId]
+    )
+
+    return res.status(200).end()
+})
 
 export default imageRouter
