@@ -91,6 +91,9 @@ imageRouter.post(
 
 //webhook for cloudinary moderation
 imageRouter.post('/cloudinary/webhook', async (req, res) => {
+    console.log(req.body)
+
+    /*
     const { publicId, moderationStatus } = req.body
 
     if (!publicId || !moderationStatus) {
@@ -122,7 +125,7 @@ imageRouter.post('/cloudinary/webhook', async (req, res) => {
              RETURNING id`,
         [url, publicId]
     )
-
+*/
     return res.status(200).end()
 })
 
