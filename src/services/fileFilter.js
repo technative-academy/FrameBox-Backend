@@ -1,5 +1,3 @@
-import InvalidDataError from '../errors/InvalidDataError'
-
 //Checks file type
 export function imageFileFilter(req, file, cb) {
     const allowed = ['image/jpeg', 'image/png']
