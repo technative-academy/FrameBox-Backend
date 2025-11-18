@@ -106,6 +106,7 @@ imageRouter.post(
             600
         )
 
+        console.log(`Was it Cloudinary? ${isCloudinary}`)
         if (!isCloudinary) {
             return res.status(403).end()
         }
