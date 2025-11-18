@@ -32,7 +32,7 @@ imageRouter.get(
     (req, res) => {
         res.send(`
     <h1>File Upload Demo</h1>
-    <form action="/playlists/inception" method="post" enctype="multipart/form-data">
+    <form action="playlists/inception" method="post" enctype="multipart/form-data">
         <input type="file" name="image" />
         <button type="submit">Upload</button>
     </form>
