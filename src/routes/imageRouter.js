@@ -90,43 +90,61 @@ imageRouter.post(
 )
 
 //webhook for cloudinary moderation
-imageRouter.post('/cloudinary/webhook', async (req, res) => {
-    console.log(req.body)
+imageRouter.post(
+    '/cloudinary/webhook',
+    express.raw({ type: 'application/json' }),
+    async (req, res) => {
+        //verify that cloudinary is the client
+        const raw = req.body.toString('utf8')
+        const timestamp = req.header('X-Cld-Timestamp')
+        const signature = req.header('X-Cld-Signature')
 
-    /*
-    const { publicId, moderationStatus } = req.body
+        const isCloudinary = cloudinary.utils.verifyNotificationSignature(
+            raw,
+            timestamp,
+            signature,
+            600
+        )
 
-    if (!publicId || !moderationStatus) {
-        throw new InvalidDataError('Invalid Webhook')
-    }
+        if (!isCloudinary) {
+            return res.status(403).end()
+        }
 
-    if (moderationStatus !== 'approved') {
+        //Then use notification to update img
+        const data = JSON.parse(raw)
+
+        const { public_id, moderation_status, secure_url } = data
+
+        if (!public_id || !moderation_status) {
+            return res.status(200).end()
+        }
+
+        if (moderation_status !== 'approved') {
+            return res.status(200).end()
+        }
+
+        const url = secure_url || cloudinary.url(public_id)
+
+        const movieRes = await db.query(
+            `UPDATE movies
+             SET approved = true, img = $1
+             WHERE img_id = $2`,
+            [url, public_id]
+        )
+
+        if (movieRes.rowCount > 0) {
+            return res.status(200).end()
+        }
+
+        const playlistRes = await db.query(
+            `UPDATE playlists
+             SET approved = true, img = $1
+             WHERE img_id = $2`,
+            [url, public_id]
+        )
+
         return res.status(200).end()
     }
-
-    const url = cloudinary.url(publicId)
-
-    const movieRes = await db.query(
-        `UPDATE movies
-             SET approved = true, img = $1
-             WHERE img_id = $2
-             RETURNING slug`,
-        [url, publicId]
-    )
-
-    if (movieRes.rowCount > 0) {
-        return res.status(200).end()
-    }
-
-    const playlistRes = await db.query(
-        `UPDATE playlists
-             SET approved = true, img = $1
-             WHERE img_id = $2
-             RETURNING id`,
-        [url, publicId]
-    )
-*/
-    return res.status(200).end()
-})
+)
 
 export default imageRouter
