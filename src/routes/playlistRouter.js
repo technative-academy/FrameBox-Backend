@@ -19,7 +19,7 @@ const sqlGetPlaylist = `
     p.slug,
     p.title,
     p.summary,
-    p.img
+    p.img,
     p.date_created,
     COALESCE(
         json_agg(
@@ -50,7 +50,7 @@ playlistRouter.get('/', async (req, res) => {
         p.slug,
         p.title,
         p.summary,
-        p.img
+        p.img,
         p.date_created,
         COALESCE(
             json_agg(m.slug) FILTER (WHERE m.id IS NOT NULL),
