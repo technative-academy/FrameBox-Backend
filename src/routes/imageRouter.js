@@ -99,6 +99,12 @@ imageRouter.post(
         const timestamp = req.header('X-Cld-Timestamp')
         const signature = req.header('X-Cld-Signature')
 
+        console.log(req.body)
+        console.log('---------')
+        console.log(raw)
+        console.log(timestamp)
+        console.log(signature)
+
         const isCloudinary = cloudinary.utils.verifyNotificationSignature(
             raw,
             timestamp,
