@@ -20,6 +20,7 @@ const sqlGetPlaylist = `
     p.slug,
     p.title,
     p.summary,
+    p.img,
     p.date_created,
     COALESCE(
         json_agg(
@@ -50,6 +51,7 @@ playlistRouter.get('/', async (req, res) => {
         p.slug,
         p.title,
         p.summary,
+        p.img,
         p.date_created,
         COALESCE(
             json_agg(m.slug) FILTER (WHERE m.id IS NOT NULL),
@@ -225,8 +227,21 @@ playlistRouter.post(
     slugIdentifier,
     duplicateCheckPlaylist,
     async (req, res) => {
-        const sql = `INSERT INTO playlists (slug, title, summary, date_created)
-        VALUES ($1, $2, $3, NOW())
+        //Get user ID
+        const userIdResult = await db.query(
+            'SELECT id FROM users WHERE username = $1',
+            [req.user.username]
+        )
+        const userId = userIdResult.rows[0].id
+
+        // WHILST AUTHENTICATION OFFLINE, SET AUTHOR TO JOHN DOE. TO BE REMOVED WHEN AUTH LIVE
+        if (!userId) {
+            userId = 'a6705e10-8d8c-48f9-ae3e-31b1bfacb4cc'
+        }
+
+        //Create Playlist
+        const sql = `INSERT INTO playlists (slug, title, summary, date_created, author)
+        VALUES ($1, $2, $3, NOW(), $4)
         RETURNING slug, title, summary, date_created;
         `
 
@@ -234,7 +249,11 @@ playlistRouter.post(
             req.body.slug,
             req.body.title,
             req.body.summary || null,
+            userId,
         ])
+
+        // Add username as author for returned playlist for user
+        result.rows[0].author = req.user.username
 
         res.status(201).json(result.rows[0])
     }

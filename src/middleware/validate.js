@@ -184,3 +184,11 @@ export async function checkOwner(req, res, next) {
 
     next()
 }
+
+export function validateImageSuccessfulUpload(req, res, next) {
+    if (!req.file) {
+        throw new InvalidDataError('Invalid file type')
+    }
+
+    next()
+}
