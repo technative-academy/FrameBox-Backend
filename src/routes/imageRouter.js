@@ -5,10 +5,19 @@ import dotenv from 'dotenv'
 import { db } from '../db/db.js'
 import fs from 'fs'
 import authenticateToken from '../middleware/auth.js'
+import { imageFileFilter } from '../services/fileFilter.js'
+import { validateImageSuccessfulUpload } from '../middleware/validate.js'
+import InvalidDataError from '../errors/InvalidDataError.js'
 
 dotenv.config()
 const imageRouter = Router()
-const upload = multer({ dest: './uploads/' }) // temporary storage
+const upload = multer({
+    dest: './uploads/',
+    limits: {
+        fileSize: 0.5 * 1024 * 1024, //0.5MB
+    },
+    fileFilter: imageFileFilter,
+}) // temporary storage, file size limits and sets fileFilter
 
 // Configure Cloudinary
 cloudinary.config({
@@ -35,53 +44,89 @@ imageRouter.get(
 imageRouter.post(
     '/playlists/:slug',
     upload.single('image'),
+    validateImageSuccessfulUpload,
     async (req, res) => {
         const result = await cloudinary.uploader.upload(req.file.path, {
-            folder: 'user_uploads',
+            upload_preset: 'FrameBox Image Upload',
         })
         const slug = req.params.slug
-        const table = `playlists`
 
         await fs.promises.unlink(req.file.path)
 
-        const url = cloudinary.url(result.public_id, {
-            transformation: [
-                { height: 700, width: 700, crop: 'fill' },
-                { quality: 'auto:low' },
-            ],
-        })
+        //Set temp image and store image id
+        const url = cloudinary.url('awaiting_700_lqzlpx')
+        const publicId = result.public_id
 
         const resultDb = await db.query(
-            `UPDATE ${table} SET img = $1 WHERE slug = $2`,
-            [url, slug]
+            `UPDATE playlists SET img = $1, img_id = $2 WHERE slug = $3`,
+            [url, publicId, slug]
         )
         res.json({ imageUrl: url })
     }
 )
 // Upload endpoint
-imageRouter.post('/movies/:slug', upload.single('image'), async (req, res) => {
-    const result = await cloudinary.uploader.upload(req.file.path, {
-        folder: 'user_uploads',
-    })
-    const slug = req.params.slug
-    const table = `movies`
+imageRouter.post(
+    '/movies/:slug',
+    upload.single('image'),
+    validateImageSuccessfulUpload,
+    async (req, res) => {
+        const result = await cloudinary.uploader.upload(req.file.path, {
+            upload_preset: 'FrameBox Image Upload',
+        })
+        const slug = req.params.slug
 
-    await fs.promises.unlink(req.file.path)
+        await fs.promises.unlink(req.file.path)
 
-    const url = cloudinary.url(result.public_id, {
-        transformation: [
-            {
-                width: 400,
-                height: 450,
-            },
-        ],
-    })
+        //Set temp image and store image id
+        const url = cloudinary.url('awaiting_700_lqzlpx')
+        const publicId = result.public_id
 
-    const resultDb = await db.query(
-        `UPDATE ${table} SET img = $1 WHERE slug = $2`,
-        [url, slug]
+        const resultDb = await db.query(
+            `UPDATE movies SET img = $1, img_id = $2 WHERE slug = $3`,
+            [url, publicId, slug]
+        )
+        res.json({ imageUrl: url })
+    }
+)
+
+//webhook for cloudinary moderation
+imageRouter.post('/cloudinary/webhook', async (req, res) => {
+    console.log(req.body)
+
+    /*
+    const { publicId, moderationStatus } = req.body
+
+    if (!publicId || !moderationStatus) {
+        throw new InvalidDataError('Invalid Webhook')
+    }
+
+    if (moderationStatus !== 'approved') {
+        return res.status(200).end()
+    }
+
+    const url = cloudinary.url(publicId)
+
+    const movieRes = await db.query(
+        `UPDATE movies
+             SET approved = true, img = $1
+             WHERE img_id = $2
+             RETURNING slug`,
+        [url, publicId]
     )
-    res.json({ imageUrl: url })
+
+    if (movieRes.rowCount > 0) {
+        return res.status(200).end()
+    }
+
+    const playlistRes = await db.query(
+        `UPDATE playlists
+             SET approved = true, img = $1
+             WHERE img_id = $2
+             RETURNING id`,
+        [url, publicId]
+    )
+*/
+    return res.status(200).end()
 })
 
 export default imageRouter
