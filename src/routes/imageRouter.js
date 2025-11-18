@@ -7,7 +7,7 @@ import fs from 'fs'
 import authenticateToken from '../middleware/auth.js'
 import { imageFileFilter } from '../services/fileFilter.js'
 import { validateImageSuccessfulUpload } from '../middleware/validate.js'
-import InvalidDataError from '../errors/InvalidDataError.js'
+import express from 'express'
 
 dotenv.config()
 const imageRouter = Router()
