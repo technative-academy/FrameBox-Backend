@@ -51,13 +51,12 @@ const loginUser = async (email, password) => {
 
     // If the user exists and the password matches, generate access and refresh tokens
     if (user && (await bcrypt.compare(password, user.password))) {
-        const userData = { id: user.id, email: user.email }
+        const userData = { username: user.username, email: user.email }
         const accessToken = generateAccessToken(userData)
         const refreshToken = generateRefreshToken(userData)
 
         return {
-            id: user.id,
-            name: user.name,
+            username: user.username,
             accessToken,
             refreshToken,
         }
@@ -74,7 +73,7 @@ const refreshAccessToken = async (refreshToken) => {
             refreshToken,
             process.env.REFRESH_TOKEN_SECRET
         )
-        const userData = { id: user.id, email: user.email }
+        const userData = { username: user.username, email: user.email }
         // Generate and return a new access token
         return generateAccessToken(userData)
     } catch (err) {
