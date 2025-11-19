@@ -233,7 +233,7 @@ playlistRouter.post(
         const userId = userIdResult.rows[0].id
 
         //Create Playlist
-        const sql = `INSERT INTO playlists (slug, title, summary, date_created, author)
+        const sql = `INSERT INTO playlists (slug, title, summary, date_created, user_id)
         VALUES ($1, $2, $3, NOW(), $4)
         RETURNING slug, title, summary, date_created;
         `
