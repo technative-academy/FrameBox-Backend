@@ -27,6 +27,21 @@ paths:
             responses:
                 '201':
                     description: Playlist created successfully
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    slug:
+                                        type: string
+                                    title:
+                                        type: string
+                                    summary:
+                                        type: string
+                                    date_created:
+                                        type: string
+                                        format: date-time
+
         get:
             tags:
                 - Playlists
@@ -84,7 +99,17 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/Playlist'
+                                type: object
+                                properties:
+                                    slug:
+                                        type: string
+                                    title:
+                                        type: string
+                                    summary:
+                                        type: string
+                                    date_created:
+                                        type: string
+                                        format: date-time
         delete:
             tags:
                 - Playlists
@@ -182,6 +207,10 @@ paths:
             responses:
                 '201':
                     description: Movie created successfully
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Movie'
         get:
             tags:
                 - Movies
@@ -305,7 +334,10 @@ paths:
                     text/plain:
                         schema:
                             type: string
-                            examples: [This is a cookie, not string.]
+                            examples:
+                                [
+                                    This is a cookie already on the header of your request.,
+                                ]
             responses:
                 '200':
                     description: New Access Token granted
@@ -351,6 +383,103 @@ paths:
                             schema:
                                 $ref: '#/components/schemas/User'
 
+    /images:
+        get:
+            tags:
+                - Images
+            summary: File upload demo page
+            description: Returns a simple HTML form used during development to demo file uploads.
+            responses:
+                '200':
+                    description: HTML demo page
+                    content:
+                        text/html:
+                            schema:
+                                type: string
+                                description: HTML content
+    /images/playlists/{slug}:
+        post:
+            tags:
+                - Images
+            summary: Upload an image for a playlist
+            parameters:
+                - name: slug
+                  in: path
+                  required: true
+                  description: Playlist slug to attach the uploaded image to
+                  schema:
+                      $ref: '#/components/schemas/Playlist/properties/slug'
+            requestBody:
+                description: Image file under the "image" field.
+                required: true
+                content:
+                    multipart/form-data:
+                        schema:
+                            type: object
+                            properties:
+                                image:
+                                    type: string
+                                    format: binary
+            responses:
+                '200':
+                    description: Image uploaded successfully; temporary URL returned
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ImageUploadResponse'
+    /images/movies/{slug}:
+        post:
+            tags:
+                - Images
+            summary: Upload an image for a movie
+            parameters:
+                - name: slug
+                  in: path
+                  required: true
+                  description: Movie slug to attach the uploaded image to
+                  schema:
+                      $ref: '#/components/schemas/Movie/properties/slug'
+            requestBody:
+                description: Image file under the "image" field.
+                required: true
+                content:
+                    multipart/form-data:
+                        schema:
+                            type: object
+                            properties:
+                                image:
+                                    type: string
+                                    format: binary
+            responses:
+                '200':
+                    description: Image uploaded successfully; temporary URL returned
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ImageUploadResponse'
+    /images/cloudinary/webhook:
+        post:
+            tags:
+                - Images
+            summary: Cloudinary moderation webhook receiver
+            description: >-
+                Endpoint used by Cloudinary to POST moderation notifications. The
+                server verifies the notification signature before updating the stored
+                image URL and approval status.
+            requestBody:
+                description: Raw webhook payload from Cloudinary (sent in the request body).
+                required: true
+                content:
+                    text/plain:
+                        schema:
+                            type: string
+                            description: Raw webhook payload (string)
+            responses:
+                '200':
+                    description: Webhook processed (ok)
+                '403':
+                    description: Forbidden - signature verification failed
+
 components:
     schemas:
         Playlist:
@@ -365,6 +494,10 @@ components:
                     examples: [Scary Movies To Sleep To]
                 summary:
                     type: string
+                img:
+                    type: string
+                    format: uri
+                    readOnly: true
                 movies:
                     type: array
                     items:
@@ -390,6 +523,10 @@ components:
                     examples: [Scary Movies To Sleep To]
                 summary:
                     type: string
+                img:
+                    type: string
+                    format: uri
+                    readOnly: true
                 movies:
                     type: array
                     items:
@@ -434,8 +571,7 @@ components:
                 img:
                     type: string
                     format: url
-                genre:
-                    $ref: '#/components/schemas/Genre/properties/title'
+                    readOnly: true
         User:
             type: object
             properties:
@@ -460,15 +596,6 @@ components:
                     type: string
                     format: date-time
                     readOnly: true
-        Genre:
-            type: object
-            properties:
-                slug:
-                    type: string
-                    examples: [horror]
-                title:
-                    type: string
-                    examples: [Horror]
         LoginRequest:
             type: object
             properties:
@@ -488,3 +615,10 @@ components:
                     type: string
                 refreshToken:
                     type: string
+        ImageUploadResponse:
+            type: object
+            properties:
+                imageUrl:
+                    type: string
+                    format: uri
+                    description: Temporary or approved image URL returned after upload

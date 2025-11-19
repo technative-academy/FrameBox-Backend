@@ -65,10 +65,6 @@ movieRouter.patch(
             fields.push(`description = $${fields.length + 1}`)
             values.push(incomingPatch.description)
         }
-        if (incomingPatch.img) {
-            fields.push(`img = $${fields.length + 1}`)
-            values.push(incomingPatch.img)
-        }
 
         //pushing initial slug to specify which entry to patch
         values.push(slug)
@@ -77,7 +73,7 @@ movieRouter.patch(
     UPDATE movies
     SET ${fields.join(', ')}
     WHERE "slug" = $${values.length}
-    RETURNING slug, title, description, date_added, img;
+    RETURNING slug, title, description, date_added;
     `
 
         const result = await db.query(sql, values)
