@@ -4,13 +4,15 @@ import {
     loginUser,
     refreshAccessToken,
 } from '../services/auth.js'
+import slugIdentifier from '../middleware/slugIdentifier.js'
+
 
 const authRouter = Router()
 
-authRouter.post('/register', async (req, res) => {
+authRouter.post('/register', slugIdentifier, async (req, res) => {
     try {
-        const { username, email, password, bio } = req.body
-        const user = await registerUser(username, email, password, bio)
+        const { username, email, password, slug } = req.body
+        const user = await registerUser(username, email, password, slug)
         res.status(201).json(user)
     } catch (error) {
         res.status(400).json({ error: error.message })
