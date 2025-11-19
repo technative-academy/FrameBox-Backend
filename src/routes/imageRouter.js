@@ -4,10 +4,9 @@ import { v2 as cloudinary } from 'cloudinary'
 import dotenv from 'dotenv'
 import { db } from '../db/db.js'
 import fs from 'fs'
-import authenticateToken from '../middleware/auth.js'
 import { imageFileFilter } from '../services/fileFilter.js'
 import { validateImageSuccessfulUpload } from '../middleware/validate.js'
-import express from 'express'
+import authenticateToken from '../middleware/auth.js'
 
 dotenv.config()
 const imageRouter = Router()
@@ -28,7 +27,7 @@ cloudinary.config({
 
 imageRouter.get(
     '/',
-    //authenticateToken,
+    authenticateToken,
     (req, res) => {
         res.send(`
     <h1>File Upload Demo</h1>
@@ -43,6 +42,7 @@ imageRouter.get(
 // Upload endpoint
 imageRouter.post(
     '/playlists/:slug',
+    authenticateToken,
     upload.single('image'),
     validateImageSuccessfulUpload,
     async (req, res) => {
@@ -67,6 +67,7 @@ imageRouter.post(
 // Upload endpoint
 imageRouter.post(
     '/movies/:slug',
+    authenticateToken,
     upload.single('image'),
     validateImageSuccessfulUpload,
     async (req, res) => {

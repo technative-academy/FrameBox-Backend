@@ -1,6 +1,5 @@
 import { Router } from 'express'
 import { db } from '../db/db.js'
-import slugify from 'slugify'
 import NotFoundError from '../errors/NotFoundError.js'
 import {
     validateMovieExists,
@@ -43,7 +42,7 @@ movieRouter.get('/:slug', async (req, res) => {
 //update movie by name (slug)
 movieRouter.patch(
     '/:slug',
-    //authenticateToken,
+    authenticateToken,
     validateMovieExists,
     validateMovieReq,
     slugIdentifier,
@@ -84,7 +83,7 @@ movieRouter.patch(
 
 movieRouter.delete(
     '/:slug',
-    //authenticateToken,
+    authenticateToken,
     validateMovieExists,
     async (req, res) => {
         const slug = req.params.slug
@@ -97,7 +96,7 @@ movieRouter.delete(
 
 movieRouter.post(
     '/',
-    //authenticateToken,
+    authenticateToken,
     validateMovieReq,
     slugIdentifier,
     duplicateCheckMovie,
