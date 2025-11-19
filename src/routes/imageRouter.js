@@ -6,8 +6,7 @@ import { db } from '../db/db.js'
 import fs from 'fs'
 import authenticateToken from '../middleware/auth.js'
 import { imageFileFilter } from '../services/fileFilter.js'
-import { validateImageSuccessfulUpload } from '../middleware/validate.js'
-import express from 'express'
+import { validateImageSuccessfulUpload, validateMovieExists, validatePlaylistExists } from '../middleware/validate.js'
 
 dotenv.config()
 const imageRouter = Router()
@@ -43,6 +42,7 @@ imageRouter.get(
 // Upload endpoint
 imageRouter.post(
     '/playlists/:slug',
+    validatePlaylistExists,
     upload.single('image'),
     validateImageSuccessfulUpload,
     async (req, res) => {
@@ -67,6 +67,7 @@ imageRouter.post(
 // Upload endpoint
 imageRouter.post(
     '/movies/:slug',
+    validateMovieExists,
     upload.single('image'),
     validateImageSuccessfulUpload,
     async (req, res) => {
