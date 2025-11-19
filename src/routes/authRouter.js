@@ -4,8 +4,7 @@ import {
     loginUser,
     refreshAccessToken,
 } from '../services/auth.js'
-import slugIdentifier from '../middleware/slugIdentifier.js'
-
+import { slugIdentifier } from '../middleware/slugIdentifier.js'
 
 const authRouter = Router()
 
