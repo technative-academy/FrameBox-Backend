@@ -19,7 +19,7 @@ const generateRefreshToken = (user) => {
     })
 }
 
-const registerUser = async (username, email, password, bio) => {
+const registerUser = async (username, email, password, slug) => {
     // Check if the email already exists
     const emailCheckResult = await db.query(
         'SELECT * FROM users WHERE email = $1',
@@ -33,8 +33,8 @@ const registerUser = async (username, email, password, bio) => {
     // hash the password and insert the new user into the database
     const hashedPassword = await bcrypt.hash(password, 10)
     const result = await db.query(
-        'INSERT INTO users (username, email, password, bio) VALUES ($1, $2, $3, $4) RETURNING *',
-        [username, email, hashedPassword, bio]
+        'INSERT INTO users (username, email, password, slug, date_joined) VALUES ($1, $2, $3, $4, NOW()) RETURNING *',
+        [username, email, hashedPassword, slug]
     )
 
     // Return the newly created user
