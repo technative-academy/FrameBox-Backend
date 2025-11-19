@@ -16,7 +16,13 @@ app.use(
         },
     })
 )
-app.use(cors())
+
+const corsOptions = {
+    origin: process.env.CORS_ORIGIN,
+    credentials: true,
+}
+
+app.use(cors(corsOptions))
 app.use(cookieParser())
 
 app.use('/api', routes)
