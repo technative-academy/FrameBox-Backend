@@ -59,6 +59,19 @@ This project is designed to work alongside a separate **Frontend repository**, w
   
 ---
 
+## 🤝 Authors
+
+### Backend
+- [Matt Hemstock](https://github.com/waker-btn)
+- [Tymur Soroka](https://github.com/timtim40a)
+
+### Frontend
+- [Nathan Hor](https://github.com/NathanHor22)
+- [Thabo Gulu](https://github.com/tgulu)
+- [Tymur Soroka](https://github.com/timtim40a)
+
+---
+
 ## Setup
 
 Follow the steps below to run the project locally.
@@ -209,19 +222,6 @@ The API will be available at:
 Once running, you can explore the documentation at:
 
 [http://localhost:3000/api/docs](http://localhost:3000/api/docs)
-
----
-
-## 🤝 Authors
-
-### Backend
-- [Matt Hemstock](https://github.com/waker-btn)
-- [Tymur Soroka](https://github.com/timtim40a)
-
-### Frontend
-- [Nathan Hor](https://github.com/NathanHor22)
-- [Thabo Gulu](https://github.com/tgulu)
-- [Tymur Soroka](https://github.com/timtim40a)
 
 
 
