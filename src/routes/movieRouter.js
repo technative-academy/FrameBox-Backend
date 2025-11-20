@@ -2,6 +2,7 @@ import { Router } from 'express'
 import { db } from '../db/db.js'
 import NotFoundError from '../errors/NotFoundError.js'
 import {
+    checkOwnerMovie,
     validateMovieExists,
     validateMovieReq,
 } from '../middleware/validate.js'
@@ -14,7 +15,7 @@ const movieRouter = Router()
 //get all movies
 movieRouter.get('/', async (req, res) => {
     const result = await db.query(
-        'SELECT m.slug, m.title, m.description, m.date_added, m.img FROM movies AS m'
+        'SELECT m.slug, m.title, m.description, m.date_added, m.img, u.username AS author FROM movies AS m JOIN users AS u ON m.user_id = u.id'
     )
 
     if (result.rowCount == 0) {
@@ -28,7 +29,7 @@ movieRouter.get('/', async (req, res) => {
 movieRouter.get('/:slug', async (req, res) => {
     const slug = req.params.slug
     const result = await db.query(
-        'SELECT m.slug, m.title, m.description, m.date_added, m.img FROM movies AS m WHERE slug = $1',
+        'SELECT m.slug, m.title, m.description, m.date_added, m.img, u.username AS author FROM movies AS m JOIN users AS u ON m.user_id = u.id WHERE m.slug = $1',
         [slug]
     )
 
@@ -43,6 +44,7 @@ movieRouter.get('/:slug', async (req, res) => {
 movieRouter.patch(
     '/:slug',
     authenticateToken,
+    checkOwnerMovie,
     validateMovieExists,
     validateMovieReq,
     slugIdentifier,
@@ -84,6 +86,7 @@ movieRouter.patch(
 movieRouter.delete(
     '/:slug',
     authenticateToken,
+    checkOwnerMovie,
     validateMovieExists,
     async (req, res) => {
         const slug = req.params.slug
@@ -103,9 +106,16 @@ movieRouter.post(
     async (req, res) => {
         const incomingPost = req.body
 
+        //Get user ID
+        const userIdResult = await db.query(
+            'SELECT id FROM users WHERE username = $1',
+            [req.user.username]
+        )
+        const userId = userIdResult.rows[0].id
+
         const sql = `
-            INSERT INTO movies (slug, title, description, date_added, img)
-            VALUES ($1, $2, $3, NOW(), $4)
+            INSERT INTO movies (slug, title, description, date_added, img, user_id)
+            VALUES ($1, $2, $3, NOW(), $4, $5)
             RETURNING slug, title, description, date_added, img;
         `
 
@@ -114,8 +124,10 @@ movieRouter.post(
             incomingPost.title,
             incomingPost.description || null,
             incomingPost.img || null,
+            userId,
         ])
 
+        result.rows[0].author = req.user.username
         res.status(201).json(result.rows[0])
     }
 )

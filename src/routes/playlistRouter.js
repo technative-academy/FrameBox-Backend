@@ -6,7 +6,7 @@ import {
     validatePlaylistExists,
     validatePlaylistReq,
     validateMoviesExistArray,
-    checkOwner,
+    checkOwnerPlaylist,
 } from '../middleware/validate.js'
 import { slugIdentifier } from '../middleware/slugIdentifier.js'
 import { duplicateCheckPlaylist } from '../middleware/duplicateCheck.js'
@@ -86,7 +86,7 @@ playlistRouter.get('/:slug', async (req, res) => {
 playlistRouter.patch(
     '/:slug',
     authenticateToken,
-    checkOwner,
+    checkOwnerPlaylist,
     validatePlaylistExists,
     validatePlaylistReq,
     slugIdentifier,
@@ -129,7 +129,7 @@ playlistRouter.patch(
 playlistRouter.post(
     '/:slug/movies',
     authenticateToken,
-    checkOwner,
+    checkOwnerPlaylist,
     validatePlaylistExists,
     validateMovieArray,
     validateMoviesExistArray,
@@ -169,7 +169,7 @@ playlistRouter.post(
 playlistRouter.delete(
     '/:slug/movies',
     authenticateToken,
-    checkOwner,
+    checkOwnerPlaylist,
     validatePlaylistExists,
     validateMovieArray,
     validateMoviesExistArray,
@@ -208,7 +208,7 @@ playlistRouter.delete(
 playlistRouter.delete(
     '/:slug',
     authenticateToken,
-    checkOwner,
+    checkOwnerPlaylist,
     validatePlaylistExists,
     async (req, res) => {
         const slug = req.params.slug

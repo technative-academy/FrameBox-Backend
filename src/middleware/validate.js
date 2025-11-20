@@ -8,6 +8,8 @@ const playlistObjKeys = ['title', 'summary']
 const movieObjKeys = ['title', 'description', 'img']
 const movieExist = 'SELECT slug FROM movies WHERE slug = $1'
 const playlistExist = 'SELECT slug FROM playlists WHERE slug = $1'
+const movieOwner = 'SELECT user_id FROM playlists WHERE slug = $1'
+const playlistOwner = 'SELECT user_id FROM movies WHERE slug = $1'
 
 function createValidateReq(schemaObject) {
     return function validateReq(req, res, next) {
@@ -23,7 +25,7 @@ function createValidateReq(schemaObject) {
 
         // if POST and title not given
         if (req.method === 'POST' && title === undefined) {
-            throw new InvalidDataError('Title is required for movie creation.')
+            throw new InvalidDataError('Title is required for creation.')
         }
 
         // if no valid key is present
@@ -162,28 +164,29 @@ export async function validateMoviesExistArray(req, res, next) {
     next()
 }
 
-export async function checkOwner(req, res, next) {
-    const userIDResult = db.query('SELECT id FROM users WHERE username = $1', [
-        req.user.username,
-    ])
-    const userID = userIDResult.rows[0].id
-
-    const { slug } = req.params
-
-    const authorCheckResult = db.query(
-        'SELECT user_id FROM playlists WHERE slug = $1',
-        [slug]
-    )
-    const authorID = authorCheckResult.rows[0].user_id
-
-    if (userID !== authorID) {
-        throw new UnauthorisedError(
-            'Unauthorised - You did not create this playlist'
+function checkOwner(tableQuery) {
+    return async function checkOwner(req, res, next) {
+        const userIDResult = db.query(
+            'SELECT id FROM users WHERE username = $1',
+            [req.user.username]
         )
-    }
+        const userID = userIDResult.rows[0].id
 
-    next()
+        const { slug } = req.params
+
+        const authorCheckResult = db.query(tableQuery, [slug])
+        const authorID = authorCheckResult.rows[0].user_id
+
+        if (userID !== authorID) {
+            throw new UnauthorisedError('Unauthorised - User did not own this.')
+        }
+
+        next()
+    }
 }
+
+export const checkOwnerMovie = checkOwner(movieOwner)
+export const checkOwnerPlaylist = checkOwner(playlistOwner)
 
 export function validateImageSuccessfulUpload(req, res, next) {
     if (!req.file) {
