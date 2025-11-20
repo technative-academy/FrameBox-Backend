@@ -166,7 +166,7 @@ export async function validateMoviesExistArray(req, res, next) {
 
 function checkOwner(tableQuery) {
     return async function checkOwner(req, res, next) {
-        const userIDResult = db.query(
+        const userIDResult = await db.query(
             'SELECT id FROM users WHERE username = $1',
             [req.user.username]
         )
