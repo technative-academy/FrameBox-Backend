@@ -363,18 +363,11 @@ paths:
                                     message:
                                         type: string
                                         examples: [Logged Out]
-    /users/{slug}:
+    /users/me/info:
         get:
             tags:
                 - Users
-            summary: Get a user's public details.
-            parameters:
-                - name: slug
-                  in: path
-                  required: true
-                  description: The slug of the user to get.
-                  schema:
-                      $ref: '#/components/schemas/User/properties/slug'
+            summary: Get the logged in user's details. Requires Authentication.
             responses:
                 '200':
                     description: User Details
@@ -382,7 +375,34 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/User'
-
+    /users/me/movies:
+        get:
+            tags:
+                - Users
+            summary: Get the logged in user's created movies. Requires Authentication.
+            responses:
+                '200':
+                    description: User Details
+                    content:
+                        application/json:
+                            schema:
+                                type: Array
+                                items:
+                                    $ref: '#/components/schemas/Movie'
+    /users/me/playlists:
+        get:
+            tags:
+                - Users
+            summary: Get the logged in user's created playlists. Requires Authentication.
+            responses:
+                '200':
+                    description: User Details
+                    content:
+                        application/json:
+                            schema:
+                                type: Array
+                                items:
+                                    $ref: '#/components/schemas/Playlist'
     /images:
         get:
             tags:
@@ -591,7 +611,6 @@ components:
                 email:
                     type: string
                     format: email
-                    writeOnly: true
                 password:
                     type: string
                     format: password

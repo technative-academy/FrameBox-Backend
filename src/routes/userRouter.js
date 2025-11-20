@@ -1,32 +1,30 @@
 import { Router } from 'express'
 import { db } from '../db/db.js'
+import authenticateToken from '../middleware/auth.js'
 
 const userRouter = Router()
 
-userRouter.get('/me/info'),
-    async (req, res) => {
-        const username = req.user.username
-        const sql =
-            'SELECT username, slug, bio, email, date_joined FROM users WHERE username = $1'
-        const result = await db.query(sql, username)
+userRouter.get('/me/info', authenticateToken, async (req, res) => {
+    const username = req.user.username
+    const sql =
+        'SELECT username, slug, bio, email, date_joined FROM users WHERE username = $1'
+    const result = await db.query(sql, [username])
 
-        res.status(200).json(result.rows[0])
-    }
+    res.status(200).json(result.rows[0])
+})
 
-userRouter.get('/me/movies'),
-    async (req, res) => {
-        const username = req.user.username
-        const sql =
-            'SELECT m.slug, m.title, m.description, m.date_added, m.img, u.username FROM movies AS m JOIN users AS u ON m.user_id = u.id WHERE u.username = $1'
-        const result = await db.query(sql, username)
+userRouter.get('/me/movies', authenticateToken, async (req, res) => {
+    const username = req.user.username
+    const sql =
+        'SELECT m.slug, m.title, m.description, m.date_added, m.img, u.username FROM movies AS m JOIN users AS u ON m.user_id = u.id WHERE u.username = $1'
+    const result = await db.query(sql, [username])
 
-        res.status(200).json(result.rows)
-    }
+    res.status(200).json(result.rows)
+})
 
-userRouter.get('/me/playlists'),
-    async (req, res) => {
-        const username = req.user.username
-        const sql = `SELECT
+userRouter.get('/me/playlists', authenticateToken, async (req, res) => {
+    const username = req.user.username
+    const sql = `SELECT
         p.slug,
         p.title,
         p.summary,
@@ -43,9 +41,9 @@ userRouter.get('/me/playlists'),
         LEFT JOIN users u ON u.id = p.user_id
         WHERE u.username = $1
         GROUP BY p.id, u.username`
-        const result = await db.query(sql, username)
+    const result = await db.query(sql, [username])
 
-        res.status(200).json(result.rows)
-    }
+    res.status(200).json(result.rows)
+})
 
 export default userRouter
