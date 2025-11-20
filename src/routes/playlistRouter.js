@@ -33,13 +33,13 @@ const sqlGetPlaylist = `
         ) FILTER (WHERE m.id IS NOT NULL),
         '[]'
     ) AS movies,
-    u.username
+    u.username AS author
     FROM playlists p
     LEFT JOIN playlist_movies pm ON pm.playlist_id = p.id
     LEFT JOIN movies m ON m.id = pm.movie_id
     LEFT JOIN users u ON u.id = p.user_id
     WHERE p.slug = $1
-    GROUP BY p.id, u.username;
+    GROUP BY p.id, author;
 
     `
 
@@ -55,12 +55,12 @@ playlistRouter.get('/', async (req, res) => {
             json_agg(m.slug) FILTER (WHERE m.id IS NOT NULL),
             '[]'
         ) AS movies,
-        u.username
+        u.username AS author
         FROM playlists p
         LEFT JOIN playlist_movies pm ON pm.playlist_id = p.id
         LEFT JOIN movies m ON m.id = pm.movie_id
         LEFT JOIN users u ON u.id = p.user_id
-        GROUP BY p.id, u.username;`
+        GROUP BY p.id, author;`
     )
 
     if (result.rowCount == 0) {
