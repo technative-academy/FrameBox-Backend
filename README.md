@@ -77,4 +77,6 @@ This project is designed to work alongside a separate **Frontend repository**, w
 ### Frontend
 - [Nathan Hor](https://github.com/NathanHor22)
 - [Thabo Gulu](https://github.com/tgulu)
+- [Tymur Soroka](https://github.com/timtim40a)
+
 
