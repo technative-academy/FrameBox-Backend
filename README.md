@@ -1,4 +1,4 @@
-﻿# Framebox - Backend
+﻿# 🎥 Framebox - Backend
 
 A backend **Express** application providing an **API** for **CRUD** operations on users/authentication, playlists (collections), and movies (items). It uses **PostgreSQL** for database management and is hosted on **Railway**. Key NPM packages include **pg**, **slugify**, and **jsonwebtoken**.
 
@@ -72,7 +72,7 @@ This project is designed to work alongside a separate **Frontend repository**, w
 
 ---
 
-## Setup
+## 📦 Setup
 
 Follow the steps below to run the project locally.
 
@@ -222,6 +222,7 @@ The API will be available at:
 Once running, you can explore the documentation at:
 
 [http://localhost:3000/api/docs](http://localhost:3000/api/docs)
+
 
 
 
