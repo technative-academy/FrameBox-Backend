@@ -39,7 +39,7 @@ const sqlGetPlaylist = `
     LEFT JOIN movies m ON m.id = pm.movie_id
     LEFT JOIN users u ON u.id = p.user_id
     WHERE p.slug = $1
-    GROUP BY p.id, author;
+    GROUP BY p.id, u.username;
 
     `
 
@@ -60,7 +60,7 @@ playlistRouter.get('/', async (req, res) => {
         LEFT JOIN playlist_movies pm ON pm.playlist_id = p.id
         LEFT JOIN movies m ON m.id = pm.movie_id
         LEFT JOIN users u ON u.id = p.user_id
-        GROUP BY p.id, author;`
+        GROUP BY p.id, u.username;`
     )
 
     if (result.rowCount == 0) {
