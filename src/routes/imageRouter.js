@@ -4,9 +4,13 @@ import { v2 as cloudinary } from 'cloudinary'
 import dotenv from 'dotenv'
 import { db } from '../db/db.js'
 import fs from 'fs'
-import authenticateToken from '../middleware/auth.js'
 import { imageFileFilter } from '../services/fileFilter.js'
-import { validateImageSuccessfulUpload, validateMovieExists, validatePlaylistExists } from '../middleware/validate.js'
+import {
+    validateImageSuccessfulUpload,
+    validateMovieExists,
+    validatePlaylistExists,
+} from '../middleware/validate.js'
+import authenticateToken from '../middleware/auth.js'
 
 dotenv.config()
 const imageRouter = Router()
@@ -25,23 +29,20 @@ cloudinary.config({
     api_secret: process.env.CLOUDINARY_API_SECRET,
 })
 
-imageRouter.get(
-    '/',
-    //authenticateToken,
-    (req, res) => {
-        res.send(`
+imageRouter.get('/', authenticateToken, (req, res) => {
+    res.send(`
     <h1>File Upload Demo</h1>
     <form action="playlists/inception" method="post" enctype="multipart/form-data">
         <input type="file" name="image" />
         <button type="submit">Upload</button>
     </form>
     `)
-    }
-)
+})
 
 // Upload endpoint
 imageRouter.post(
     '/playlists/:slug',
+    authenticateToken,
     validatePlaylistExists,
     upload.single('image'),
     validateImageSuccessfulUpload,
@@ -67,6 +68,7 @@ imageRouter.post(
 // Upload endpoint
 imageRouter.post(
     '/movies/:slug',
+    authenticateToken,
     validateMovieExists,
     upload.single('image'),
     validateImageSuccessfulUpload,

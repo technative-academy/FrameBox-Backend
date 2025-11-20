@@ -1,6 +1,5 @@
 import { Router } from 'express'
 import { db } from '../db/db.js'
-import slugify from 'slugify'
 import authenticateToken from '../middleware/auth.js'
 import {
     validateMovieArray,
@@ -34,7 +33,7 @@ const sqlGetPlaylist = `
         ) FILTER (WHERE m.id IS NOT NULL),
         '[]'
     ) AS movies,
-    u.username
+    u.username AS author
     FROM playlists p
     LEFT JOIN playlist_movies pm ON pm.playlist_id = p.id
     LEFT JOIN movies m ON m.id = pm.movie_id
@@ -43,7 +42,6 @@ const sqlGetPlaylist = `
     GROUP BY p.id, u.username;
 
     `
-//playlistRouter.use('/:slug/movies', playlistMovieRouter)
 
 playlistRouter.get('/', async (req, res) => {
     const result = await db.query(
@@ -57,7 +55,7 @@ playlistRouter.get('/', async (req, res) => {
             json_agg(m.slug) FILTER (WHERE m.id IS NOT NULL),
             '[]'
         ) AS movies,
-        u.username
+        u.username AS author
         FROM playlists p
         LEFT JOIN playlist_movies pm ON pm.playlist_id = p.id
         LEFT JOIN movies m ON m.id = pm.movie_id
@@ -87,8 +85,8 @@ playlistRouter.get('/:slug', async (req, res) => {
 // Update the playlist's info
 playlistRouter.patch(
     '/:slug',
-    //authenticateToken,
-    //checkOwner,
+    authenticateToken,
+    checkOwner,
     validatePlaylistExists,
     validatePlaylistReq,
     slugIdentifier,
@@ -130,8 +128,8 @@ playlistRouter.patch(
 //Add movies to a playlist
 playlistRouter.post(
     '/:slug/movies',
-    //authenticateToken,
-    //checkOwner,
+    authenticateToken,
+    checkOwner,
     validatePlaylistExists,
     validateMovieArray,
     validateMoviesExistArray,
@@ -170,8 +168,8 @@ playlistRouter.post(
 
 playlistRouter.delete(
     '/:slug/movies',
-    //authenticateToken,
-    //checkOwner,
+    authenticateToken,
+    checkOwner,
     validatePlaylistExists,
     validateMovieArray,
     validateMoviesExistArray,
@@ -209,8 +207,8 @@ playlistRouter.delete(
 
 playlistRouter.delete(
     '/:slug',
-    //authenticateToken,
-    //checkOwner,
+    authenticateToken,
+    checkOwner,
     validatePlaylistExists,
     async (req, res) => {
         const slug = req.params.slug
@@ -222,7 +220,7 @@ playlistRouter.delete(
 )
 playlistRouter.post(
     '/',
-    //authenticateToken,
+    authenticateToken,
     validatePlaylistReq,
     slugIdentifier,
     duplicateCheckPlaylist,
@@ -234,13 +232,8 @@ playlistRouter.post(
         )
         const userId = userIdResult.rows[0].id
 
-        // WHILST AUTHENTICATION OFFLINE, SET AUTHOR TO JOHN DOE. TO BE REMOVED WHEN AUTH LIVE
-        if (!userId) {
-            userId = 'a6705e10-8d8c-48f9-ae3e-31b1bfacb4cc'
-        }
-
         //Create Playlist
-        const sql = `INSERT INTO playlists (slug, title, summary, date_created, author)
+        const sql = `INSERT INTO playlists (slug, title, summary, date_created, user_id)
         VALUES ($1, $2, $3, NOW(), $4)
         RETURNING slug, title, summary, date_created;
         `

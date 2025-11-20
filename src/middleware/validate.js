@@ -171,10 +171,10 @@ export async function checkOwner(req, res, next) {
     const { slug } = req.params
 
     const authorCheckResult = db.query(
-        'SELECT author FROM playlists WHERE slug = $1',
+        'SELECT user_id FROM playlists WHERE slug = $1',
         [slug]
     )
-    const authorID = authorCheckResult.rows[0].author
+    const authorID = authorCheckResult.rows[0].user_id
 
     if (userID !== authorID) {
         throw new UnauthorisedError(
