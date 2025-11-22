@@ -174,7 +174,7 @@ function checkOwner(tableQuery) {
 
         const { slug } = req.params
 
-        const authorCheckResult = db.query(tableQuery, [slug])
+        const authorCheckResult = await db.query(tableQuery, [slug])
         const authorID = authorCheckResult.rows[0].user_id
 
         if (userID !== authorID) {
