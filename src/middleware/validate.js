@@ -8,8 +8,8 @@ const playlistObjKeys = ['title', 'summary']
 const movieObjKeys = ['title', 'description', 'img']
 const movieExist = 'SELECT slug FROM movies WHERE slug = $1'
 const playlistExist = 'SELECT slug FROM playlists WHERE slug = $1'
-const movieOwner = 'SELECT user_id FROM playlists WHERE slug = $1'
-const playlistOwner = 'SELECT user_id FROM movies WHERE slug = $1'
+const movieOwner = 'SELECT user_id FROM movies WHERE slug = $1'
+const playlistOwner = 'SELECT user_id FROM playlists WHERE slug = $1'
 
 function createValidateReq(schemaObject) {
     return function validateReq(req, res, next) {
