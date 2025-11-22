@@ -5,6 +5,7 @@ import dotenv from 'dotenv'
 import { db } from '../db/db.js'
 import fs from 'fs'
 import { imageFileFilter } from '../services/fileFilter.js'
+import ForbiddenError from '../errors/ForbiddenError.js'
 import {
     validateImageSuccessfulUpload,
     validateMovieExists,
@@ -114,7 +115,7 @@ imageRouter.post('/cloudinary/webhook', async (req, res) => {
 
     console.log(`Was it Cloudinary? ${isCloudinary}`)
     if (!isCloudinary) {
-        return res.status(403).end()
+        throw new ForbiddenError('Cloudinary signature verification failed')
     }
 
     //Then use notification to update img
