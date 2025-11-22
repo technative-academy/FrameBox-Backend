@@ -170,8 +170,8 @@ playlistRouter.post(
 playlistRouter.delete(
     '/:slug/movies',
     authenticateToken,
-    checkOwnerPlaylist,
     validatePlaylistExists,
+    checkOwnerPlaylist,
     validateMovieArray,
     validateMoviesExistArray,
     async (req, res) => {
