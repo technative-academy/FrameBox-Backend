@@ -6,7 +6,11 @@ class NotFoundError extends Error {
     }
 
     toJSON() {
-        return { error: this.name, code: this.statusCode, message: this.message }
+        return {
+            error: this.name,
+            code: this.statusCode,
+            message: this.message,
+        }
     }
 }
 
