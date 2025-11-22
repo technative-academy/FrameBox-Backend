@@ -11,6 +11,7 @@ import {
 import { slugIdentifier } from '../middleware/slugIdentifier.js'
 import { duplicateCheckPlaylist } from '../middleware/duplicateCheck.js'
 import NotFoundError from '../errors/NotFoundError.js'
+import { defaultImage } from '../middleware/image.js'
 
 const playlistRouter = Router()
 
@@ -224,6 +225,7 @@ playlistRouter.post(
     validatePlaylistReq,
     slugIdentifier,
     duplicateCheckPlaylist,
+    defaultImage,
     async (req, res) => {
         //Get user ID
         const userIdResult = await db.query(
@@ -233,9 +235,9 @@ playlistRouter.post(
         const userId = userIdResult.rows[0].id
 
         //Create Playlist
-        const sql = `INSERT INTO playlists (slug, title, summary, date_created, user_id)
-        VALUES ($1, $2, $3, NOW(), $4)
-        RETURNING slug, title, summary, date_created;
+        const sql = `INSERT INTO playlists (slug, title, summary, date_created, user_id, img)
+        VALUES ($1, $2, $3, NOW(), $4, $5)
+        RETURNING slug, title, summary, date_created, img;
         `
 
         const result = await db.query(sql, [
@@ -243,6 +245,7 @@ playlistRouter.post(
             req.body.title,
             req.body.summary || null,
             userId,
+            req.body.img,
         ])
 
         // Add username as author for returned playlist for user

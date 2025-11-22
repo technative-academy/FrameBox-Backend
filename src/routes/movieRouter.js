@@ -9,6 +9,7 @@ import {
 import { slugIdentifier } from '../middleware/slugIdentifier.js'
 import { duplicateCheckMovie } from '../middleware/duplicateCheck.js'
 import authenticateToken from '../middleware/auth.js'
+import { defaultImage } from '../middleware/image.js'
 
 const movieRouter = Router()
 
@@ -103,6 +104,7 @@ movieRouter.post(
     validateMovieReq,
     slugIdentifier,
     duplicateCheckMovie,
+    defaultImage,
     async (req, res) => {
         const incomingPost = req.body
 
