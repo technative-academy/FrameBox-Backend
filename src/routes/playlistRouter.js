@@ -130,8 +130,8 @@ playlistRouter.patch(
 playlistRouter.post(
     '/:slug/movies',
     authenticateToken,
-    checkOwnerPlaylist,
     validatePlaylistExists,
+    checkOwnerPlaylist,
     validateMovieArray,
     validateMoviesExistArray,
     async (req, res) => {
