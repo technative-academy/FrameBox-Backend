@@ -41,6 +41,9 @@ paths:
                                     date_created:
                                         type: string
                                         format: date-time
+                                    img:
+                                        type: string
+                                        format: uri
 
         get:
             tags:
@@ -590,7 +593,7 @@ components:
                     readOnly: true
                 img:
                     type: string
-                    format: url
+                    format: uri
                     readOnly: true
                 author:
                     allOf:
