@@ -693,3 +693,154 @@ components:
                     type: string
                     format: uri
                     description: Temporary or approved image URL returned after upload
+    examples:
+        NoDataProvided:
+            value:
+                error: BadRequestError
+                code: 400
+                message: No data provided for update / creation.
+        TitleRequired:
+            value:
+                error: BadRequestError
+                code: 400
+                message: Title is required for creation.
+        NoValidKeys:
+            value:
+                error: BadRequestError
+                code: 400
+                message: No valid keys provided for update / creation.
+        TitleEmpty:
+            value:
+                error: BadRequestError
+                code: 400
+                message: Title cannot be empty.
+        TitleExceedsMaxLength:
+            value:
+                error: BadRequestError
+                code: 400
+                message: title exceeds maximum length of 2000 characters.
+        DescriptionExceedsMaxLength:
+            value:
+                error: BadRequestError
+                code: 400
+                message: description exceeds maximum length of 2000 characters.
+        SummaryExceedsMaxLength:
+            value:
+                error: BadRequestError
+                code: 400
+                message: summary exceeds maximum length of 2000 characters.
+        NoValidMoviesArray:
+            value:
+                error: BadRequestError
+                code: 400
+                message: No valid movies array provided.
+        MoviesArrayEmpty:
+            value:
+                error: BadRequestError
+                code: 400
+                message: Movies array cannot be empty.
+        MoviesNonEmptyStrings:
+            value:
+                error: BadRequestError
+                code: 400
+                message: All movies must be non-empty strings.
+        MovieTitleMaxLength:
+            value:
+                error: BadRequestError
+                code: 400
+                message: Each movie title must be at most 2000 characters.
+        SomeMoviesDoNotExist:
+            value:
+                error: BadRequestError
+                code: 400
+                message: 'Some movies do not exist in our database: movie-slug-1, movie-slug-2'
+        MoviesAlreadyInPlaylist:
+            value:
+                error: BadRequestError
+                code: 400
+                message: 'Some movies are already in the playlist: inception, the-dark-knight'
+        MoviesNotInPlaylist:
+            value:
+                error: BadRequestError
+                code: 400
+                message: 'Some movies are not in the playlist: inception, the-dark-knight'
+        InvalidFileType:
+            value:
+                error: BadRequestError
+                code: 400
+                message: Invalid file type
+        EmailAlreadyExists:
+            value:
+                error: BadRequestError
+                code: 400
+                message: Email already exists
+        InvalidEmailOrPassword:
+            value:
+                error: BadRequestError
+                code: 400
+                message: Invalid email or password
+        NoTokenProvided:
+            value:
+                error: UnauthorizedError
+                code: 401
+                message: No token provided
+        NoRefreshToken:
+            value:
+                error: UnauthorizedError
+                code: 401
+                message: No refresh token provided
+        InvalidToken:
+            value:
+                error: ForbiddenError
+                code: 403
+                message: Invalid or expired token
+        InvalidRefreshToken:
+            value:
+                error: ForbiddenError
+                code: 403
+                message: Invalid refresh token
+        UserDidNotOwnThis:
+            value:
+                error: ForbiddenError
+                code: 403
+                message: Forbidden - User did not own this.
+        CloudinarySignatureVerificationFailed:
+            value:
+                error: ForbiddenError
+                code: 403
+                message: Cloudinary signature verification failed
+        NoMoviesFound:
+            value:
+                error: NotFoundError
+                code: 404
+                message: No movies found.
+        MovieNotFoundBySlug:
+            value:
+                error: NotFoundError
+                code: 404
+                message: Movie "inception" not found.
+        SlugNotFound:
+            value:
+                error: NotFoundError
+                code: 404
+                message: '"inception" not found.'
+        NoPlaylistsFound:
+            value:
+                error: NotFoundError
+                code: 404
+                message: No playlists found.
+        PlaylistNotFoundBySlug:
+            value:
+                error: NotFoundError
+                code: 404
+                message: Playlist "best-thrillers" not found.
+        MovieSlugAlreadyExists:
+            value:
+                error: ConflictError
+                code: 409
+                message: Movie with slug "inception" already exists.
+        PlaylistSlugAlreadyExists:
+            value:
+                error: ConflictError
+                code: 409
+                message: Movie with slug "best-thrillers" already exists.
