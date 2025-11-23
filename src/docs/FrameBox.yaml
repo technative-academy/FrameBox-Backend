@@ -307,12 +307,60 @@ paths:
                             required:
                                 - movies
             responses:
-                '201':
+                '200':
                     description: Movies added successfully
                     content:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/IndividualPlaylist'
+                '400':
+                    description: Bad Request
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/BadRequestError'
+                            examples:
+                                noValidMoviesArray:
+                                    $ref: '#/components/examples/NoValidMoviesArray'
+                                moviesArrayEmpty:
+                                    $ref: '#/components/examples/MoviesArrayEmpty'
+                                moviesNonEmptyStrings:
+                                    $ref: '#/components/examples/MoviesNonEmptyStrings'
+                                movieTitleMaxLength:
+                                    $ref: '#/components/examples/MovieTitleMaxLength'
+                                someMoviesDoNotExist:
+                                    $ref: '#/components/examples/SomeMoviesDoNotExist'
+                                moviesAlreadyInPlaylist:
+                                    $ref: '#/components/examples/MoviesAlreadyInPlaylist'
+                '401':
+                    description: Unauthorized
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/UnauthorizedError'
+                            examples:
+                                noTokenProvided:
+                                    $ref: '#/components/examples/NoTokenProvided'
+                '403':
+                    description: Forbidden
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ForbiddenError'
+                            examples:
+                                invalidToken:
+                                    $ref: '#/components/examples/InvalidToken'
+                                userDidNotOwnThis:
+                                    $ref: '#/components/examples/UserDidNotOwnThis'
+                '404':
+                    description: Not Found
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/NotFoundError'
+                            examples:
+                                slugNotFound:
+                                    $ref: '#/components/examples/SlugNotFound'
         delete:
             tags:
                 - Playlists
@@ -346,6 +394,54 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/IndividualPlaylist'
+                '400':
+                    description: Bad Request
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/BadRequestError'
+                            examples:
+                                noValidMoviesArray:
+                                    $ref: '#/components/examples/NoValidMoviesArray'
+                                moviesArrayEmpty:
+                                    $ref: '#/components/examples/MoviesArrayEmpty'
+                                moviesNonEmptyStrings:
+                                    $ref: '#/components/examples/MoviesNonEmptyStrings'
+                                movieTitleMaxLength:
+                                    $ref: '#/components/examples/MovieTitleMaxLength'
+                                someMoviesDoNotExist:
+                                    $ref: '#/components/examples/SomeMoviesDoNotExist'
+                                moviesNotInPlaylist:
+                                    $ref: '#/components/examples/MoviesNotInPlaylist'
+                '401':
+                    description: Unauthorized
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/UnauthorizedError'
+                            examples:
+                                noTokenProvided:
+                                    $ref: '#/components/examples/NoTokenProvided'
+                '403':
+                    description: Forbidden
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ForbiddenError'
+                            examples:
+                                invalidToken:
+                                    $ref: '#/components/examples/InvalidToken'
+                                userDidNotOwnThis:
+                                    $ref: '#/components/examples/UserDidNotOwnThis'
+                '404':
+                    description: Not Found
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/NotFoundError'
+                            examples:
+                                slugNotFound:
+                                    $ref: '#/components/examples/SlugNotFound'
 
     /movies:
         post:
