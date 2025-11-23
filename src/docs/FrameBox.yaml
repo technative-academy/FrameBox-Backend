@@ -45,6 +45,52 @@ paths:
                                     img:
                                         type: string
                                         format: uri
+                '400':
+                    description: Bad Request
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/BadRequestError'
+                            examples:
+                                noDataProvided:
+                                    $ref: '#/components/examples/NoDataProvided'
+                                titleRequired:
+                                    $ref: '#/components/examples/TitleRequired'
+                                noValidKeys:
+                                    $ref: '#/components/examples/NoValidKeys'
+                                titleEmpty:
+                                    $ref: '#/components/examples/TitleEmpty'
+                                titleExceedsMaxLength:
+                                    $ref: '#/components/examples/TitleExceedsMaxLength'
+                                summaryExceedsMaxLength:
+                                    $ref: '#/components/examples/SummaryExceedsMaxLength'
+                '401':
+                    description: Unauthorized
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/UnauthorizedError'
+                            examples:
+                                noTokenProvided:
+                                    $ref: '#/components/examples/NoTokenProvided'
+                '403':
+                    description: Forbidden
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ForbiddenError'
+                            examples:
+                                invalidToken:
+                                    $ref: '#/components/examples/InvalidToken'
+                '409':
+                    description: Conflict
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ConflictError'
+                            examples:
+                                playlistSlugAlreadyExists:
+                                    $ref: '#/components/examples/PlaylistSlugAlreadyExists'
 
         get:
             tags:
