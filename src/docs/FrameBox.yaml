@@ -14,6 +14,7 @@ paths:
             tags:
                 - Playlists
             summary: Create a new playlist
+            description: Create a new playlist. Requires authorization
             requestBody:
                 description: Playlist object to create
                 required: true
@@ -49,6 +50,7 @@ paths:
             tags:
                 - Playlists
             summary: Get all playlists
+            description: Get a list of all playlists
             responses:
                 '200':
                     description: A list of all playlists
@@ -63,6 +65,7 @@ paths:
             tags:
                 - Playlists
             summary: Get a playlist with its movies
+            description: Get a playlist with its movies
             parameters:
                 - name: slug
                   in: path
@@ -81,7 +84,7 @@ paths:
             tags:
                 - Playlists
             summary: Update a playlist
-            description: Update a playlist's title or summary
+            description: Update a playlist's title or summary. Requires authorization
             parameters:
                 - name: slug
                   in: path
@@ -117,6 +120,7 @@ paths:
             tags:
                 - Playlists
             summary: Delete a playlist
+            description: Delete's a playlist. Requires authorization
             parameters:
                 - name: slug
                   in: path
@@ -132,6 +136,7 @@ paths:
             tags:
                 - Playlists
             summary: Add movies to a playlist
+            description: Add movies to a playlist. Requires authorization
             parameters:
                 - name: slug
                   in: path
@@ -164,6 +169,7 @@ paths:
             tags:
                 - Playlists
             summary: Remove movies from a playlist
+            description: Remove movies from a playlist. Requires authorization
             parameters:
                 - name: slug
                   in: path
