@@ -813,7 +813,8 @@ paths:
         get:
             tags:
                 - Users
-            summary: Get the logged in user's details. Requires Authentication.
+            summary: Get the logged in user's details.
+            description: Get the logged in user's details. Requires authorization
             responses:
                 '200':
                     description: User Details
@@ -821,11 +822,30 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/User'
+                '401':
+                    description: Unauthorized
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/UnauthorizedError'
+                            examples:
+                                noTokenProvided:
+                                    $ref: '#/components/examples/NoTokenProvided'
+                '403':
+                    description: Forbidden
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ForbiddenError'
+                            examples:
+                                invalidToken:
+                                    $ref: '#/components/examples/InvalidToken'
     /users/me/movies:
         get:
             tags:
                 - Users
-            summary: Get the logged in user's created movies. Requires Authentication.
+            summary: Get the logged in user's created movies.
+            description: Get the logged in user's created movies. Requires authorization
             responses:
                 '200':
                     description: User Details
@@ -835,11 +855,30 @@ paths:
                                 type: Array
                                 items:
                                     $ref: '#/components/schemas/Movie'
+                '401':
+                    description: Unauthorized
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/UnauthorizedError'
+                            examples:
+                                noTokenProvided:
+                                    $ref: '#/components/examples/NoTokenProvided'
+                '403':
+                    description: Forbidden
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ForbiddenError'
+                            examples:
+                                invalidToken:
+                                    $ref: '#/components/examples/InvalidToken'
     /users/me/playlists:
         get:
             tags:
                 - Users
-            summary: Get the logged in user's created playlists. Requires Authentication.
+            summary: Get the logged in user's created playlists.
+            description: Get the logged in user's created playlists. Requires authorization
             responses:
                 '200':
                     description: User Details
@@ -849,20 +888,24 @@ paths:
                                 type: Array
                                 items:
                                     $ref: '#/components/schemas/Playlist'
-    /images:
-        get:
-            tags:
-                - Images
-            summary: File upload demo page
-            description: Returns a simple HTML form used during development to demo file uploads.
-            responses:
-                '200':
-                    description: HTML demo page
+                '401':
+                    description: Unauthorized
                     content:
-                        text/html:
+                        application/json:
                             schema:
-                                type: string
-                                description: HTML content
+                                $ref: '#/components/schemas/UnauthorizedError'
+                            examples:
+                                noTokenProvided:
+                                    $ref: '#/components/examples/NoTokenProvided'
+                '403':
+                    description: Forbidden
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ForbiddenError'
+                            examples:
+                                invalidToken:
+                                    $ref: '#/components/examples/InvalidToken'
     /images/playlists/{slug}:
         post:
             tags:
