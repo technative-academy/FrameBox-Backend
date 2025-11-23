@@ -7,6 +7,8 @@ import fs from 'fs'
 import { imageFileFilter } from '../services/fileFilter.js'
 import ForbiddenError from '../errors/ForbiddenError.js'
 import {
+    checkOwnerMovie,
+    checkOwnerPlaylist,
     validateImageSuccessfulUpload,
     validateMovieExists,
     validatePlaylistExists,
@@ -45,6 +47,7 @@ imageRouter.post(
     '/playlists/:slug',
     authenticateToken,
     validatePlaylistExists,
+    checkOwnerPlaylist,
     upload.single('image'),
     validateImageSuccessfulUpload,
     async (req, res) => {
@@ -71,6 +74,7 @@ imageRouter.post(
     '/movies/:slug',
     authenticateToken,
     validateMovieExists,
+    checkOwnerMovie,
     upload.single('image'),
     validateImageSuccessfulUpload,
     async (req, res) => {
