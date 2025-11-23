@@ -505,6 +505,51 @@ paths:
 
 components:
     schemas:
+        BadRequestError:
+            type: object
+            properties:
+                error:
+                    type: string
+                code:
+                    type: integer
+                message:
+                    type: string
+        UnauthorizedError:
+            type: object
+            properties:
+                error:
+                    type: string
+                code:
+                    type: integer
+                message:
+                    type: string
+        ForbiddenError:
+            type: object
+            properties:
+                error:
+                    type: string
+                code:
+                    type: integer
+                message:
+                    type: string
+        NotFoundError:
+            type: object
+            properties:
+                error:
+                    type: string
+                code:
+                    type: integer
+                message:
+                    type: string
+        ConflictError:
+            type: object
+            properties:
+                error:
+                    type: string
+                code:
+                    type: integer
+                message:
+                    type: string
         Playlist:
             type: object
             properties:
