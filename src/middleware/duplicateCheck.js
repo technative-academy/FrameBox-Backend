@@ -5,7 +5,7 @@ const dupeCheckMovieQuery = 'SELECT COUNT(*) FROM movies WHERE slug = $1'
 const dupeCheckPlaylistQuery = 'SELECT COUNT(*) FROM playlists WHERE slug = $1'
 
 // requires slug to be set in body
-function createDuplicateCheck(tableQuery) {
+function createDuplicateCheck(tableQuery, resourceType) {
     return async function dupilcateCheckMovie(req, res, next) {
         const slug = req.body.slug
 
@@ -18,14 +18,20 @@ function createDuplicateCheck(tableQuery) {
 
         const result = await db.query(tableQuery, [slug])
         if (parseInt(result.rows[0].count) > 0) {
-            throw new ConflictError(`Movie with slug "${slug}" already exists.`)
+            throw new ConflictError(
+                `${resourceType} with slug "${slug}" already exists.`
+            )
         }
 
         next()
     }
 }
 
-export const duplicateCheckMovie = createDuplicateCheck(dupeCheckMovieQuery)
+export const duplicateCheckMovie = createDuplicateCheck(
+    dupeCheckMovieQuery,
+    'Movie'
+)
 export const duplicateCheckPlaylist = createDuplicateCheck(
-    dupeCheckPlaylistQuery
+    dupeCheckPlaylistQuery,
+    'Playlist'
 )
