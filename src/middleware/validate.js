@@ -1,7 +1,7 @@
 import BadRequestError from '../errors/BadRequestError.js'
 import NotFoundError from '../errors/NotFoundError.js'
 import { db } from '../db/db.js'
-import UnauthorisedError from '../errors/UnauthorisedError.js'
+import ForbiddenError from '../errors/ForbiddenError.js'
 
 const MAX_TEXT_LENGTH = 2000
 const playlistObjKeys = ['title', 'summary']
@@ -160,7 +160,7 @@ function checkOwner(tableQuery) {
         const authorID = authorCheckResult.rows[0].user_id
 
         if (userID !== authorID) {
-            throw new UnauthorisedError('Unauthorised - User did not own this.')
+            throw new ForbiddenError('Forbidden - User did not own this.')
         }
 
         next()
