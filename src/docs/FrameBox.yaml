@@ -73,13 +73,6 @@ paths:
                             examples:
                                 noTokenProvided:
                                     $ref: '#/components/examples/NoTokenProvided'
-                '403':
-                    description: Forbidden
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/ForbiddenError'
-                            examples:
                                 invalidToken:
                                     $ref: '#/components/examples/InvalidToken'
                 '409':
@@ -206,6 +199,8 @@ paths:
                             examples:
                                 noTokenProvided:
                                     $ref: '#/components/examples/NoTokenProvided'
+                                invalidToken:
+                                    $ref: '#/components/examples/InvalidToken'
                 '403':
                     description: Forbidden
                     content:
@@ -213,8 +208,6 @@ paths:
                             schema:
                                 $ref: '#/components/schemas/ForbiddenError'
                             examples:
-                                invalidToken:
-                                    $ref: '#/components/examples/InvalidToken'
                                 userDidNotOwnThis:
                                     $ref: '#/components/examples/UserDidNotOwnThis'
                 '404':
@@ -259,6 +252,8 @@ paths:
                             examples:
                                 noTokenProvided:
                                     $ref: '#/components/examples/NoTokenProvided'
+                                invalidToken:
+                                    $ref: '#/components/examples/InvalidToken'
                 '403':
                     description: Forbidden
                     content:
@@ -266,8 +261,6 @@ paths:
                             schema:
                                 $ref: '#/components/schemas/ForbiddenError'
                             examples:
-                                invalidToken:
-                                    $ref: '#/components/examples/InvalidToken'
                                 userDidNotOwnThis:
                                     $ref: '#/components/examples/UserDidNotOwnThis'
                 '404':
@@ -341,6 +334,8 @@ paths:
                             examples:
                                 noTokenProvided:
                                     $ref: '#/components/examples/NoTokenProvided'
+                                invalidToken:
+                                    $ref: '#/components/examples/InvalidToken'
                 '403':
                     description: Forbidden
                     content:
@@ -348,8 +343,6 @@ paths:
                             schema:
                                 $ref: '#/components/schemas/ForbiddenError'
                             examples:
-                                invalidToken:
-                                    $ref: '#/components/examples/InvalidToken'
                                 userDidNotOwnThis:
                                     $ref: '#/components/examples/UserDidNotOwnThis'
                 '404':
@@ -422,6 +415,8 @@ paths:
                             examples:
                                 noTokenProvided:
                                     $ref: '#/components/examples/NoTokenProvided'
+                                invalidToken:
+                                    $ref: '#/components/examples/InvalidToken'
                 '403':
                     description: Forbidden
                     content:
@@ -429,8 +424,6 @@ paths:
                             schema:
                                 $ref: '#/components/schemas/ForbiddenError'
                             examples:
-                                invalidToken:
-                                    $ref: '#/components/examples/InvalidToken'
                                 userDidNotOwnThis:
                                     $ref: '#/components/examples/UserDidNotOwnThis'
                 '404':
@@ -493,13 +486,6 @@ paths:
                             examples:
                                 noTokenProvided:
                                     $ref: '#/components/examples/NoTokenProvided'
-                '403':
-                    description: Forbidden
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/ForbiddenError'
-                            examples:
                                 invalidToken:
                                     $ref: '#/components/examples/InvalidToken'
                 '409':
@@ -616,6 +602,8 @@ paths:
                             examples:
                                 noTokenProvided:
                                     $ref: '#/components/examples/NoTokenProvided'
+                                invalidToken:
+                                    $ref: '#/components/examples/InvalidToken'
                 '403':
                     description: Forbidden
                     content:
@@ -623,8 +611,6 @@ paths:
                             schema:
                                 $ref: '#/components/schemas/ForbiddenError'
                             examples:
-                                invalidToken:
-                                    $ref: '#/components/examples/InvalidToken'
                                 userDidNotOwnThis:
                                     $ref: '#/components/examples/UserDidNotOwnThis'
                 '404':
@@ -670,6 +656,8 @@ paths:
                             examples:
                                 noTokenProvided:
                                     $ref: '#/components/examples/NoTokenProvided'
+                                invalidToken:
+                                    $ref: '#/components/examples/InvalidToken'
                 '403':
                     description: Forbidden
                     content:
@@ -677,8 +665,6 @@ paths:
                             schema:
                                 $ref: '#/components/schemas/ForbiddenError'
                             examples:
-                                invalidToken:
-                                    $ref: '#/components/examples/InvalidToken'
                                 userDidNotOwnThis:
                                     $ref: '#/components/examples/UserDidNotOwnThis'
                 '404':
@@ -784,13 +770,6 @@ paths:
                             examples:
                                 noRefreshToken:
                                     $ref: '#/components/examples/NoRefreshToken'
-                '403':
-                    description: Forbidden
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/ForbiddenError'
-                            examples:
                                 invalidRefreshToken:
                                     $ref: '#/components/examples/InvalidRefreshToken'
     /auth/logout:
@@ -831,13 +810,6 @@ paths:
                             examples:
                                 noTokenProvided:
                                     $ref: '#/components/examples/NoTokenProvided'
-                '403':
-                    description: Forbidden
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/ForbiddenError'
-                            examples:
                                 invalidToken:
                                     $ref: '#/components/examples/InvalidToken'
     /users/me/movies:
@@ -864,13 +836,6 @@ paths:
                             examples:
                                 noTokenProvided:
                                     $ref: '#/components/examples/NoTokenProvided'
-                '403':
-                    description: Forbidden
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/ForbiddenError'
-                            examples:
                                 invalidToken:
                                     $ref: '#/components/examples/InvalidToken'
     /users/me/playlists:
@@ -897,13 +862,6 @@ paths:
                             examples:
                                 noTokenProvided:
                                     $ref: '#/components/examples/NoTokenProvided'
-                '403':
-                    description: Forbidden
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/ForbiddenError'
-                            examples:
                                 invalidToken:
                                     $ref: '#/components/examples/InvalidToken'
     /images/playlists/{slug}:
@@ -955,6 +913,8 @@ paths:
                             examples:
                                 noTokenProvided:
                                     $ref: '#/components/examples/NoTokenProvided'
+                                invalidToken:
+                                    $ref: '#/components/examples/InvalidToken'
                 '403':
                     description: Forbidden
                     content:
@@ -962,8 +922,6 @@ paths:
                             schema:
                                 $ref: '#/components/schemas/ForbiddenError'
                             examples:
-                                invalidToken:
-                                    $ref: '#/components/examples/InvalidToken'
                                 userDidNotOwnThis:
                                     $ref: '#/components/examples/UserDidNotOwnThis'
                 '404':
@@ -1024,6 +982,8 @@ paths:
                             examples:
                                 noTokenProvided:
                                     $ref: '#/components/examples/NoTokenProvided'
+                                invalidToken:
+                                    $ref: '#/components/examples/InvalidToken'
                 '403':
                     description: Forbidden
                     content:
@@ -1031,8 +991,6 @@ paths:
                             schema:
                                 $ref: '#/components/schemas/ForbiddenError'
                             examples:
-                                invalidToken:
-                                    $ref: '#/components/examples/InvalidToken'
                                 userDidNotOwnThis:
                                     $ref: '#/components/examples/UserDidNotOwnThis'
                 '404':
@@ -1362,13 +1320,13 @@ components:
                 message: Refresh token not provided
         InvalidToken:
             value:
-                error: ForbiddenError
-                code: 403
+                error: UnauthorisedError
+                code: 401
                 message: Invalid or expired token
         InvalidRefreshToken:
             value:
-                error: ForbiddenError
-                code: 403
+                error: UnauthorisedError
+                code: 401
                 message: Invalid refresh token
         UserDidNotOwnThis:
             value:
@@ -1414,4 +1372,4 @@ components:
             value:
                 error: ConflictError
                 code: 409
-                message: Movie with slug "best-thrillers" already exists.
+                message: Playlist with slug "best-thrillers" already exists.
