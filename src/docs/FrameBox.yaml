@@ -106,6 +106,15 @@ paths:
                                 type: array
                                 items:
                                     $ref: '#/components/schemas/Playlist'
+                '404':
+                    description: Not Found
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/NotFoundError'
+                            examples:
+                                noPlaylistsFound:
+                                    $ref: '#/components/examples/NoPlaylistsFound'
     /playlists/{slug}:
         get:
             tags:
@@ -126,6 +135,15 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/IndividualPlaylist'
+                '404':
+                    description: Not Found
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/NotFoundError'
+                            examples:
+                                playlistNotFoundBySlug:
+                                    $ref: '#/components/examples/PlaylistNotFoundBySlug'
         patch:
             tags:
                 - Playlists
@@ -162,6 +180,61 @@ paths:
                                     date_created:
                                         type: string
                                         format: date-time
+                '400':
+                    description: Bad Request
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/BadRequestError'
+                            examples:
+                                noDataProvided:
+                                    $ref: '#/components/examples/NoDataProvided'
+                                noValidKeys:
+                                    $ref: '#/components/examples/NoValidKeys'
+                                titleEmpty:
+                                    $ref: '#/components/examples/TitleEmpty'
+                                titleExceedsMaxLength:
+                                    $ref: '#/components/examples/TitleExceedsMaxLength'
+                                summaryExceedsMaxLength:
+                                    $ref: '#/components/examples/SummaryExceedsMaxLength'
+                '401':
+                    description: Unauthorized
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/UnauthorizedError'
+                            examples:
+                                noTokenProvided:
+                                    $ref: '#/components/examples/NoTokenProvided'
+                '403':
+                    description: Forbidden
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ForbiddenError'
+                            examples:
+                                invalidToken:
+                                    $ref: '#/components/examples/InvalidToken'
+                                userDidNotOwnThis:
+                                    $ref: '#/components/examples/UserDidNotOwnThis'
+                '404':
+                    description: Not Found
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/NotFoundError'
+                            examples:
+                                slugNotFound:
+                                    $ref: '#/components/examples/SlugNotFound'
+                '409':
+                    description: Conflict
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ConflictError'
+                            examples:
+                                playlistSlugAlreadyExists:
+                                    $ref: '#/components/examples/PlaylistSlugAlreadyExists'
         delete:
             tags:
                 - Playlists
@@ -177,6 +250,35 @@ paths:
             responses:
                 '204':
                     description: ''
+                '401':
+                    description: Unauthorized
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/UnauthorizedError'
+                            examples:
+                                noTokenProvided:
+                                    $ref: '#/components/examples/NoTokenProvided'
+                '403':
+                    description: Forbidden
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ForbiddenError'
+                            examples:
+                                invalidToken:
+                                    $ref: '#/components/examples/InvalidToken'
+                                userDidNotOwnThis:
+                                    $ref: '#/components/examples/UserDidNotOwnThis'
+                '404':
+                    description: Not Found
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/NotFoundError'
+                            examples:
+                                slugNotFound:
+                                    $ref: '#/components/examples/SlugNotFound'
     /playlists/{slug}/movies:
         post:
             tags:
