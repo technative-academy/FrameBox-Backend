@@ -69,7 +69,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/UnauthorizedError'
+                                $ref: '#/components/schemas/UnauthorisedError'
                             examples:
                                 noTokenProvided:
                                     $ref: '#/components/examples/NoTokenProvided'
@@ -202,7 +202,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/UnauthorizedError'
+                                $ref: '#/components/schemas/UnauthorisedError'
                             examples:
                                 noTokenProvided:
                                     $ref: '#/components/examples/NoTokenProvided'
@@ -255,7 +255,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/UnauthorizedError'
+                                $ref: '#/components/schemas/UnauthorisedError'
                             examples:
                                 noTokenProvided:
                                     $ref: '#/components/examples/NoTokenProvided'
@@ -337,7 +337,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/UnauthorizedError'
+                                $ref: '#/components/schemas/UnauthorisedError'
                             examples:
                                 noTokenProvided:
                                     $ref: '#/components/examples/NoTokenProvided'
@@ -418,7 +418,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/UnauthorizedError'
+                                $ref: '#/components/schemas/UnauthorisedError'
                             examples:
                                 noTokenProvided:
                                     $ref: '#/components/examples/NoTokenProvided'
@@ -489,7 +489,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/UnauthorizedError'
+                                $ref: '#/components/schemas/UnauthorisedError'
                             examples:
                                 noTokenProvided:
                                     $ref: '#/components/examples/NoTokenProvided'
@@ -612,7 +612,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/UnauthorizedError'
+                                $ref: '#/components/schemas/UnauthorisedError'
                             examples:
                                 noTokenProvided:
                                     $ref: '#/components/examples/NoTokenProvided'
@@ -666,7 +666,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/UnauthorizedError'
+                                $ref: '#/components/schemas/UnauthorisedError'
                             examples:
                                 noTokenProvided:
                                     $ref: '#/components/examples/NoTokenProvided'
@@ -710,12 +710,12 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/User'
-                '400':
-                    description: Bad Request
+                '409':
+                    description: Conflict
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/BadRequestError'
+                                $ref: '#/components/schemas/ConflictError'
                             examples:
                                 emailAlreadyExists:
                                     $ref: '#/components/examples/EmailAlreadyExists'
@@ -739,12 +739,12 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/LoginResponse'
-                '400':
-                    description: Bad Request
+                '401':
+                    description: Unauthorized
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/BadRequestError'
+                                $ref: '#/components/schemas/UnauthorisedError'
                             examples:
                                 invalidEmailOrPassword:
                                     $ref: '#/components/examples/InvalidEmailOrPassword'
@@ -780,7 +780,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/UnauthorizedError'
+                                $ref: '#/components/schemas/UnauthorisedError'
                             examples:
                                 noRefreshToken:
                                     $ref: '#/components/examples/NoRefreshToken'
@@ -827,7 +827,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/UnauthorizedError'
+                                $ref: '#/components/schemas/UnauthorisedError'
                             examples:
                                 noTokenProvided:
                                     $ref: '#/components/examples/NoTokenProvided'
@@ -860,7 +860,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/UnauthorizedError'
+                                $ref: '#/components/schemas/UnauthorisedError'
                             examples:
                                 noTokenProvided:
                                     $ref: '#/components/examples/NoTokenProvided'
@@ -893,7 +893,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/UnauthorizedError'
+                                $ref: '#/components/schemas/UnauthorisedError'
                             examples:
                                 noTokenProvided:
                                     $ref: '#/components/examples/NoTokenProvided'
@@ -951,7 +951,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/UnauthorizedError'
+                                $ref: '#/components/schemas/UnauthorisedError'
                             examples:
                                 noTokenProvided:
                                     $ref: '#/components/examples/NoTokenProvided'
@@ -1020,7 +1020,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/UnauthorizedError'
+                                $ref: '#/components/schemas/UnauthorisedError'
                             examples:
                                 noTokenProvided:
                                     $ref: '#/components/examples/NoTokenProvided'
@@ -1085,7 +1085,7 @@ components:
                     type: integer
                 message:
                     type: string
-        UnauthorizedError:
+        UnauthorisedError:
             type: object
             properties:
                 error:
@@ -1342,24 +1342,24 @@ components:
                 message: Invalid file type
         EmailAlreadyExists:
             value:
-                error: BadRequestError
-                code: 400
+                error: ConflictError
+                code: 409
                 message: Email already exists
         InvalidEmailOrPassword:
             value:
-                error: BadRequestError
-                code: 400
+                error: UnauthorisedError
+                code: 401
                 message: Invalid email or password
         NoTokenProvided:
             value:
-                error: UnauthorizedError
+                error: UnauthorisedError
                 code: 401
                 message: No token provided
         NoRefreshToken:
             value:
-                error: UnauthorizedError
+                error: UnauthorisedError
                 code: 401
-                message: No refresh token provided
+                message: Refresh token not provided
         InvalidToken:
             value:
                 error: ForbiddenError
