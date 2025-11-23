@@ -695,6 +695,7 @@ paths:
             tags:
                 - Auth
             summary: Register a new user
+            description: Register a new user
             requestBody:
                 description: User object to create
                 required: true
@@ -709,11 +710,21 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/User'
+                '400':
+                    description: Bad Request
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/BadRequestError'
+                            examples:
+                                emailAlreadyExists:
+                                    $ref: '#/components/examples/EmailAlreadyExists'
     /auth/login:
         post:
             tags:
                 - Auth
             summary: Login as user
+            description: Login as user
             requestBody:
                 description: User credentials
                 required: true
@@ -728,11 +739,21 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/LoginResponse'
+                '400':
+                    description: Bad Request
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/BadRequestError'
+                            examples:
+                                invalidEmailOrPassword:
+                                    $ref: '#/components/examples/InvalidEmailOrPassword'
     /auth/refresh-token:
         post:
             tags:
                 - Auth
             summary: Refreshes the access token using the refresh token.
+            description: Use the refresh token cookie to obtain a new access token.
             requestBody:
                 description: Cookie containing refresh-token.
                 required: true
@@ -754,11 +775,30 @@ paths:
                                     message:
                                         type: string
                                         examples: [New Access Token]
+                '401':
+                    description: Unauthorized
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/UnauthorizedError'
+                            examples:
+                                noRefreshToken:
+                                    $ref: '#/components/examples/NoRefreshToken'
+                '403':
+                    description: Forbidden
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ForbiddenError'
+                            examples:
+                                invalidRefreshToken:
+                                    $ref: '#/components/examples/InvalidRefreshToken'
     /auth/logout:
         post:
             tags:
                 - Auth
             summary: Logs out a user and clears the refresh token cookie.
+            description: Logs out a user and clears the refresh token cookie.
             responses:
                 '200':
                     description: Logged Out
