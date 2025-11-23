@@ -18,8 +18,8 @@ const authenticateToken = (req, res, next) => {
 
     // Verify the token using the secret key
     jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
-        // If verification fails, throw an UnauthorisedError
-        if (err) throw new UnauthorisedError('Invalid or expired token')
+        // If verification fails, pass the UnauthorisedError to next
+        if (err) return next(new UnauthorisedError('Invalid or expired token'))
 
         // If verification is successful, attach the user object to the request
         req.user = user
