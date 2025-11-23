@@ -4,7 +4,6 @@ import dotenv from 'dotenv'
 import { db } from '../db/db.js'
 import ConflictError from '../errors/ConflictError.js'
 import UnauthorisedError from '../errors/UnauthorisedError.js'
-import ForbiddenError from '../errors/ForbiddenError.js'
 
 dotenv.config()
 
@@ -81,7 +80,7 @@ const refreshAccessToken = async (refreshToken) => {
         return generateAccessToken(userData)
     } catch (err) {
         // Throw an error if the refresh token is invalid
-        throw new ForbiddenError('Invalid refresh token')
+        throw new UnauthorisedError('Invalid refresh token')
     }
 }
 
