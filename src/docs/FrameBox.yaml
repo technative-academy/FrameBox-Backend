@@ -911,6 +911,7 @@ paths:
             tags:
                 - Images
             summary: Upload an image for a playlist
+            description: Upload an image for a playlist. Requires authorization
             parameters:
                 - name: slug
                   in: path
@@ -936,11 +937,50 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/ImageUploadResponse'
+                '400':
+                    description: Bad Request
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/BadRequestError'
+                            examples:
+                                invalidFileType:
+                                    $ref: '#/components/examples/InvalidFileType'
+                '401':
+                    description: Unauthorized
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/UnauthorizedError'
+                            examples:
+                                noTokenProvided:
+                                    $ref: '#/components/examples/NoTokenProvided'
+                '403':
+                    description: Forbidden
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ForbiddenError'
+                            examples:
+                                invalidToken:
+                                    $ref: '#/components/examples/InvalidToken'
+                                userDidNotOwnThis:
+                                    $ref: '#/components/examples/UserDidNotOwnThis'
+                '404':
+                    description: Not Found
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/NotFoundError'
+                            examples:
+                                slugNotFound:
+                                    $ref: '#/components/examples/SlugNotFound'
     /images/movies/{slug}:
         post:
             tags:
                 - Images
             summary: Upload an image for a movie
+            description: Upload an image for a movie. Requires authorization
             parameters:
                 - name: slug
                   in: path
@@ -966,6 +1006,44 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/ImageUploadResponse'
+                '400':
+                    description: Bad Request
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/BadRequestError'
+                            examples:
+                                invalidFileType:
+                                    $ref: '#/components/examples/InvalidFileType'
+                '401':
+                    description: Unauthorized
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/UnauthorizedError'
+                            examples:
+                                noTokenProvided:
+                                    $ref: '#/components/examples/NoTokenProvided'
+                '403':
+                    description: Forbidden
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ForbiddenError'
+                            examples:
+                                invalidToken:
+                                    $ref: '#/components/examples/InvalidToken'
+                                userDidNotOwnThis:
+                                    $ref: '#/components/examples/UserDidNotOwnThis'
+                '404':
+                    description: Not Found
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/NotFoundError'
+                            examples:
+                                slugNotFound:
+                                    $ref: '#/components/examples/SlugNotFound'
     /images/cloudinary/webhook:
         post:
             tags:
@@ -988,6 +1066,13 @@ paths:
                     description: Webhook processed (ok)
                 '403':
                     description: Forbidden - signature verification failed
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ForbiddenError'
+                            examples:
+                                cloudinarySignatureVerificationFailed:
+                                    $ref: '#/components/examples/CloudinarySignatureVerificationFailed'
 
 components:
     schemas:
