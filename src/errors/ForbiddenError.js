@@ -1,8 +1,8 @@
-class ConflictError extends Error {
+class ForbiddenError extends Error {
     constructor(message) {
         super(message)
-        this.statusCode = 409
-        this.name = 'ConflictError'
+        this.statusCode = 403
+        this.name = 'ForbiddenError'
     }
 
     toJSON() {
@@ -14,4 +14,4 @@ class ConflictError extends Error {
     }
 }
 
-export default ConflictError
+export default ForbiddenError

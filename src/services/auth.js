@@ -2,6 +2,8 @@ import jwt from 'jsonwebtoken'
 import bcrypt from 'bcryptjs'
 import dotenv from 'dotenv'
 import { db } from '../db/db.js'
+import ConflictError from '../errors/ConflictError.js'
+import UnauthorisedError from '../errors/UnauthorisedError.js'
 
 dotenv.config()
 
@@ -26,7 +28,7 @@ const registerUser = async (username, email, password, slug) => {
         [email]
     )
     if (emailCheckResult.rows.length > 0) {
-        throw new Error('Email already exists')
+        throw new ConflictError('Email already exists')
     }
 
     // If the email does not exist, proceed with registration
@@ -63,7 +65,7 @@ const loginUser = async (email, password) => {
     }
 
     // Throw an error if the email or password is invalid
-    throw new Error('Invalid email or password')
+    throw new UnauthorisedError('Invalid email or password')
 }
 
 const refreshAccessToken = async (refreshToken) => {
@@ -78,7 +80,7 @@ const refreshAccessToken = async (refreshToken) => {
         return generateAccessToken(userData)
     } catch (err) {
         // Throw an error if the refresh token is invalid
-        throw new Error('Invalid refresh token')
+        throw new UnauthorisedError('Invalid refresh token')
     }
 }
 

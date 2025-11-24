@@ -14,6 +14,7 @@ paths:
             tags:
                 - Playlists
             summary: Create a new playlist
+            description: Create a new playlist. Requires authorization
             requestBody:
                 description: Playlist object to create
                 required: true
@@ -44,11 +45,51 @@ paths:
                                     img:
                                         type: string
                                         format: uri
+                '400':
+                    description: Bad Request
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/BadRequestError'
+                            examples:
+                                noDataProvided:
+                                    $ref: '#/components/examples/NoDataProvided'
+                                titleRequired:
+                                    $ref: '#/components/examples/TitleRequired'
+                                noValidKeys:
+                                    $ref: '#/components/examples/NoValidKeys'
+                                titleEmpty:
+                                    $ref: '#/components/examples/TitleEmpty'
+                                titleExceedsMaxLength:
+                                    $ref: '#/components/examples/TitleExceedsMaxLength'
+                                summaryExceedsMaxLength:
+                                    $ref: '#/components/examples/SummaryExceedsMaxLength'
+                '401':
+                    description: Unauthorized
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/UnauthorisedError'
+                            examples:
+                                noTokenProvided:
+                                    $ref: '#/components/examples/NoTokenProvided'
+                                invalidToken:
+                                    $ref: '#/components/examples/InvalidToken'
+                '409':
+                    description: Conflict
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ConflictError'
+                            examples:
+                                playlistSlugAlreadyExists:
+                                    $ref: '#/components/examples/PlaylistSlugAlreadyExists'
 
         get:
             tags:
                 - Playlists
             summary: Get all playlists
+            description: Get a list of all playlists
             responses:
                 '200':
                     description: A list of all playlists
@@ -58,11 +99,21 @@ paths:
                                 type: array
                                 items:
                                     $ref: '#/components/schemas/Playlist'
+                '404':
+                    description: Not Found
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/NotFoundError'
+                            examples:
+                                noPlaylistsFound:
+                                    $ref: '#/components/examples/NoPlaylistsFound'
     /playlists/{slug}:
         get:
             tags:
                 - Playlists
             summary: Get a playlist with its movies
+            description: Get a playlist with its movies
             parameters:
                 - name: slug
                   in: path
@@ -77,11 +128,20 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/IndividualPlaylist'
+                '404':
+                    description: Not Found
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/NotFoundError'
+                            examples:
+                                playlistNotFoundBySlug:
+                                    $ref: '#/components/examples/PlaylistNotFoundBySlug'
         patch:
             tags:
                 - Playlists
             summary: Update a playlist
-            description: Update a playlist's title or summary
+            description: Update a playlist's title or summary. Requires authorization
             parameters:
                 - name: slug
                   in: path
@@ -113,10 +173,66 @@ paths:
                                     date_created:
                                         type: string
                                         format: date-time
+                '400':
+                    description: Bad Request
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/BadRequestError'
+                            examples:
+                                noDataProvided:
+                                    $ref: '#/components/examples/NoDataProvided'
+                                noValidKeys:
+                                    $ref: '#/components/examples/NoValidKeys'
+                                titleEmpty:
+                                    $ref: '#/components/examples/TitleEmpty'
+                                titleExceedsMaxLength:
+                                    $ref: '#/components/examples/TitleExceedsMaxLength'
+                                summaryExceedsMaxLength:
+                                    $ref: '#/components/examples/SummaryExceedsMaxLength'
+                '401':
+                    description: Unauthorized
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/UnauthorisedError'
+                            examples:
+                                noTokenProvided:
+                                    $ref: '#/components/examples/NoTokenProvided'
+                                invalidToken:
+                                    $ref: '#/components/examples/InvalidToken'
+                '403':
+                    description: Forbidden
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ForbiddenError'
+                            examples:
+                                userDidNotOwnThis:
+                                    $ref: '#/components/examples/UserDidNotOwnThis'
+                '404':
+                    description: Not Found
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/NotFoundError'
+                            examples:
+                                slugNotFound:
+                                    $ref: '#/components/examples/SlugNotFound'
+                '409':
+                    description: Conflict
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ConflictError'
+                            examples:
+                                playlistSlugAlreadyExists:
+                                    $ref: '#/components/examples/PlaylistSlugAlreadyExists'
         delete:
             tags:
                 - Playlists
             summary: Delete a playlist
+            description: Delete's a playlist. Requires authorization
             parameters:
                 - name: slug
                   in: path
@@ -127,11 +243,41 @@ paths:
             responses:
                 '204':
                     description: ''
+                '401':
+                    description: Unauthorized
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/UnauthorisedError'
+                            examples:
+                                noTokenProvided:
+                                    $ref: '#/components/examples/NoTokenProvided'
+                                invalidToken:
+                                    $ref: '#/components/examples/InvalidToken'
+                '403':
+                    description: Forbidden
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ForbiddenError'
+                            examples:
+                                userDidNotOwnThis:
+                                    $ref: '#/components/examples/UserDidNotOwnThis'
+                '404':
+                    description: Not Found
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/NotFoundError'
+                            examples:
+                                slugNotFound:
+                                    $ref: '#/components/examples/SlugNotFound'
     /playlists/{slug}/movies:
         post:
             tags:
                 - Playlists
             summary: Add movies to a playlist
+            description: Add movies to a playlist. Requires authorization
             parameters:
                 - name: slug
                   in: path
@@ -154,16 +300,65 @@ paths:
                             required:
                                 - movies
             responses:
-                '201':
+                '200':
                     description: Movies added successfully
                     content:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/IndividualPlaylist'
+                '400':
+                    description: Bad Request
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/BadRequestError'
+                            examples:
+                                noValidMoviesArray:
+                                    $ref: '#/components/examples/NoValidMoviesArray'
+                                moviesArrayEmpty:
+                                    $ref: '#/components/examples/MoviesArrayEmpty'
+                                moviesNonEmptyStrings:
+                                    $ref: '#/components/examples/MoviesNonEmptyStrings'
+                                movieTitleMaxLength:
+                                    $ref: '#/components/examples/MovieTitleMaxLength'
+                                someMoviesDoNotExist:
+                                    $ref: '#/components/examples/SomeMoviesDoNotExist'
+                                moviesAlreadyInPlaylist:
+                                    $ref: '#/components/examples/MoviesAlreadyInPlaylist'
+                '401':
+                    description: Unauthorized
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/UnauthorisedError'
+                            examples:
+                                noTokenProvided:
+                                    $ref: '#/components/examples/NoTokenProvided'
+                                invalidToken:
+                                    $ref: '#/components/examples/InvalidToken'
+                '403':
+                    description: Forbidden
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ForbiddenError'
+                            examples:
+                                userDidNotOwnThis:
+                                    $ref: '#/components/examples/UserDidNotOwnThis'
+                '404':
+                    description: Not Found
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/NotFoundError'
+                            examples:
+                                slugNotFound:
+                                    $ref: '#/components/examples/SlugNotFound'
         delete:
             tags:
                 - Playlists
             summary: Remove movies from a playlist
+            description: Remove movies from a playlist. Requires authorization
             parameters:
                 - name: slug
                   in: path
@@ -192,12 +387,61 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/IndividualPlaylist'
+                '400':
+                    description: Bad Request
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/BadRequestError'
+                            examples:
+                                noValidMoviesArray:
+                                    $ref: '#/components/examples/NoValidMoviesArray'
+                                moviesArrayEmpty:
+                                    $ref: '#/components/examples/MoviesArrayEmpty'
+                                moviesNonEmptyStrings:
+                                    $ref: '#/components/examples/MoviesNonEmptyStrings'
+                                movieTitleMaxLength:
+                                    $ref: '#/components/examples/MovieTitleMaxLength'
+                                someMoviesDoNotExist:
+                                    $ref: '#/components/examples/SomeMoviesDoNotExist'
+                                moviesNotInPlaylist:
+                                    $ref: '#/components/examples/MoviesNotInPlaylist'
+                '401':
+                    description: Unauthorized
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/UnauthorisedError'
+                            examples:
+                                noTokenProvided:
+                                    $ref: '#/components/examples/NoTokenProvided'
+                                invalidToken:
+                                    $ref: '#/components/examples/InvalidToken'
+                '403':
+                    description: Forbidden
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ForbiddenError'
+                            examples:
+                                userDidNotOwnThis:
+                                    $ref: '#/components/examples/UserDidNotOwnThis'
+                '404':
+                    description: Not Found
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/NotFoundError'
+                            examples:
+                                slugNotFound:
+                                    $ref: '#/components/examples/SlugNotFound'
 
     /movies:
         post:
             tags:
                 - Movies
             summary: Create a new movie
+            description: Create a new movie. Requires authorization
             requestBody:
                 description: Movie object to create
                 required: true
@@ -214,10 +458,50 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Movie'
+                '400':
+                    description: Bad Request
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/BadRequestError'
+                            examples:
+                                noDataProvided:
+                                    $ref: '#/components/examples/NoDataProvided'
+                                titleRequired:
+                                    $ref: '#/components/examples/TitleRequired'
+                                noValidKeys:
+                                    $ref: '#/components/examples/NoValidKeys'
+                                titleEmpty:
+                                    $ref: '#/components/examples/TitleEmpty'
+                                titleExceedsMaxLength:
+                                    $ref: '#/components/examples/TitleExceedsMaxLength'
+                                descriptionExceedsMaxLength:
+                                    $ref: '#/components/examples/DescriptionExceedsMaxLength'
+                '401':
+                    description: Unauthorized
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/UnauthorisedError'
+                            examples:
+                                noTokenProvided:
+                                    $ref: '#/components/examples/NoTokenProvided'
+                                invalidToken:
+                                    $ref: '#/components/examples/InvalidToken'
+                '409':
+                    description: Conflict
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ConflictError'
+                            examples:
+                                movieSlugAlreadyExists:
+                                    $ref: '#/components/examples/MovieSlugAlreadyExists'
         get:
             tags:
                 - Movies
             summary: Get all movies
+            description: Get a list of all movies
             responses:
                 '200':
                     description: A list of all movies
@@ -227,11 +511,21 @@ paths:
                                 type: array
                                 items:
                                     $ref: '#/components/schemas/Movie'
+                '404':
+                    description: Not Found
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/NotFoundError'
+                            examples:
+                                noMoviesFound:
+                                    $ref: '#/components/examples/NoMoviesFound'
     /movies/{slug}:
         get:
             tags:
                 - Movies
             summary: Get a movie
+            description: Get a movie by its slug
             parameters:
                 - name: slug
                   in: path
@@ -246,10 +540,20 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Movie'
+                '404':
+                    description: Not Found
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/NotFoundError'
+                            examples:
+                                movieNotFoundBySlug:
+                                    $ref: '#/components/examples/MovieNotFoundBySlug'
         patch:
             tags:
                 - Movies
             summary: Update a movie
+            description: Update a movie by its slug. Requires authorization
             parameters:
                 - name: slug
                   in: path
@@ -272,11 +576,67 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Movie'
+                '400':
+                    description: Bad Request
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/BadRequestError'
+                            examples:
+                                noDataProvided:
+                                    $ref: '#/components/examples/NoDataProvided'
+                                noValidKeys:
+                                    $ref: '#/components/examples/NoValidKeys'
+                                titleEmpty:
+                                    $ref: '#/components/examples/TitleEmpty'
+                                titleExceedsMaxLength:
+                                    $ref: '#/components/examples/TitleExceedsMaxLength'
+                                descriptionExceedsMaxLength:
+                                    $ref: '#/components/examples/DescriptionExceedsMaxLength'
+                '401':
+                    description: Unauthorized
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/UnauthorisedError'
+                            examples:
+                                noTokenProvided:
+                                    $ref: '#/components/examples/NoTokenProvided'
+                                invalidToken:
+                                    $ref: '#/components/examples/InvalidToken'
+                '403':
+                    description: Forbidden
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ForbiddenError'
+                            examples:
+                                userDidNotOwnThis:
+                                    $ref: '#/components/examples/UserDidNotOwnThis'
+                '404':
+                    description: Not Found
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/NotFoundError'
+                            examples:
+                                slugNotFound:
+                                    $ref: '#/components/examples/SlugNotFound'
+                '409':
+                    description: Conflict
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ConflictError'
+                            examples:
+                                movieSlugAlreadyExists:
+                                    $ref: '#/components/examples/MovieSlugAlreadyExists'
 
         delete:
             tags:
                 - Movies
             summary: Deletes a Movie.
+            description: Delete a movie by its slug. Requires authorization
             parameters:
                 - name: slug
                   in: path
@@ -287,11 +647,41 @@ paths:
             responses:
                 '204':
                     description: ''
+                '401':
+                    description: Unauthorized
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/UnauthorisedError'
+                            examples:
+                                noTokenProvided:
+                                    $ref: '#/components/examples/NoTokenProvided'
+                                invalidToken:
+                                    $ref: '#/components/examples/InvalidToken'
+                '403':
+                    description: Forbidden
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ForbiddenError'
+                            examples:
+                                userDidNotOwnThis:
+                                    $ref: '#/components/examples/UserDidNotOwnThis'
+                '404':
+                    description: Not Found
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/NotFoundError'
+                            examples:
+                                slugNotFound:
+                                    $ref: '#/components/examples/SlugNotFound'
     /auth/register:
         post:
             tags:
                 - Auth
             summary: Register a new user
+            description: Register a new user
             requestBody:
                 description: User object to create
                 required: true
@@ -306,11 +696,21 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/User'
+                '409':
+                    description: Conflict
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ConflictError'
+                            examples:
+                                emailAlreadyExists:
+                                    $ref: '#/components/examples/EmailAlreadyExists'
     /auth/login:
         post:
             tags:
                 - Auth
             summary: Login as user
+            description: Login as user
             requestBody:
                 description: User credentials
                 required: true
@@ -325,11 +725,21 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/LoginResponse'
+                '401':
+                    description: Unauthorized
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/UnauthorisedError'
+                            examples:
+                                invalidEmailOrPassword:
+                                    $ref: '#/components/examples/InvalidEmailOrPassword'
     /auth/refresh-token:
         post:
             tags:
                 - Auth
             summary: Refreshes the access token using the refresh token.
+            description: Use the refresh token cookie to obtain a new access token.
             requestBody:
                 description: Cookie containing refresh-token.
                 required: true
@@ -351,11 +761,23 @@ paths:
                                     message:
                                         type: string
                                         examples: [New Access Token]
+                '401':
+                    description: Unauthorized
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/UnauthorisedError'
+                            examples:
+                                noRefreshToken:
+                                    $ref: '#/components/examples/NoRefreshToken'
+                                invalidRefreshToken:
+                                    $ref: '#/components/examples/InvalidRefreshToken'
     /auth/logout:
         post:
             tags:
                 - Auth
             summary: Logs out a user and clears the refresh token cookie.
+            description: Logs out a user and clears the refresh token cookie.
             responses:
                 '200':
                     description: Logged Out
@@ -370,7 +792,8 @@ paths:
         get:
             tags:
                 - Users
-            summary: Get the logged in user's details. Requires Authentication.
+            summary: Get the logged in user's details.
+            description: Get the logged in user's details. Requires authorization
             responses:
                 '200':
                     description: User Details
@@ -378,11 +801,23 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/User'
+                '401':
+                    description: Unauthorized
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/UnauthorisedError'
+                            examples:
+                                noTokenProvided:
+                                    $ref: '#/components/examples/NoTokenProvided'
+                                invalidToken:
+                                    $ref: '#/components/examples/InvalidToken'
     /users/me/movies:
         get:
             tags:
                 - Users
-            summary: Get the logged in user's created movies. Requires Authentication.
+            summary: Get the logged in user's created movies.
+            description: Get the logged in user's created movies. Requires authorization
             responses:
                 '200':
                     description: User Details
@@ -392,11 +827,23 @@ paths:
                                 type: Array
                                 items:
                                     $ref: '#/components/schemas/Movie'
+                '401':
+                    description: Unauthorized
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/UnauthorisedError'
+                            examples:
+                                noTokenProvided:
+                                    $ref: '#/components/examples/NoTokenProvided'
+                                invalidToken:
+                                    $ref: '#/components/examples/InvalidToken'
     /users/me/playlists:
         get:
             tags:
                 - Users
-            summary: Get the logged in user's created playlists. Requires Authentication.
+            summary: Get the logged in user's created playlists.
+            description: Get the logged in user's created playlists. Requires authorization
             responses:
                 '200':
                     description: User Details
@@ -406,25 +853,23 @@ paths:
                                 type: Array
                                 items:
                                     $ref: '#/components/schemas/Playlist'
-    /images:
-        get:
-            tags:
-                - Images
-            summary: File upload demo page
-            description: Returns a simple HTML form used during development to demo file uploads.
-            responses:
-                '200':
-                    description: HTML demo page
+                '401':
+                    description: Unauthorized
                     content:
-                        text/html:
+                        application/json:
                             schema:
-                                type: string
-                                description: HTML content
+                                $ref: '#/components/schemas/UnauthorisedError'
+                            examples:
+                                noTokenProvided:
+                                    $ref: '#/components/examples/NoTokenProvided'
+                                invalidToken:
+                                    $ref: '#/components/examples/InvalidToken'
     /images/playlists/{slug}:
         post:
             tags:
                 - Images
             summary: Upload an image for a playlist
+            description: Upload an image for a playlist. Requires authorization
             parameters:
                 - name: slug
                   in: path
@@ -450,11 +895,50 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/ImageUploadResponse'
+                '400':
+                    description: Bad Request
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/BadRequestError'
+                            examples:
+                                invalidFileType:
+                                    $ref: '#/components/examples/InvalidFileType'
+                '401':
+                    description: Unauthorized
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/UnauthorisedError'
+                            examples:
+                                noTokenProvided:
+                                    $ref: '#/components/examples/NoTokenProvided'
+                                invalidToken:
+                                    $ref: '#/components/examples/InvalidToken'
+                '403':
+                    description: Forbidden
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ForbiddenError'
+                            examples:
+                                userDidNotOwnThis:
+                                    $ref: '#/components/examples/UserDidNotOwnThis'
+                '404':
+                    description: Not Found
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/NotFoundError'
+                            examples:
+                                slugNotFound:
+                                    $ref: '#/components/examples/SlugNotFound'
     /images/movies/{slug}:
         post:
             tags:
                 - Images
             summary: Upload an image for a movie
+            description: Upload an image for a movie. Requires authorization
             parameters:
                 - name: slug
                   in: path
@@ -480,6 +964,44 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/ImageUploadResponse'
+                '400':
+                    description: Bad Request
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/BadRequestError'
+                            examples:
+                                invalidFileType:
+                                    $ref: '#/components/examples/InvalidFileType'
+                '401':
+                    description: Unauthorized
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/UnauthorisedError'
+                            examples:
+                                noTokenProvided:
+                                    $ref: '#/components/examples/NoTokenProvided'
+                                invalidToken:
+                                    $ref: '#/components/examples/InvalidToken'
+                '403':
+                    description: Forbidden
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ForbiddenError'
+                            examples:
+                                userDidNotOwnThis:
+                                    $ref: '#/components/examples/UserDidNotOwnThis'
+                '404':
+                    description: Not Found
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/NotFoundError'
+                            examples:
+                                slugNotFound:
+                                    $ref: '#/components/examples/SlugNotFound'
     /images/cloudinary/webhook:
         post:
             tags:
@@ -502,9 +1024,61 @@ paths:
                     description: Webhook processed (ok)
                 '403':
                     description: Forbidden - signature verification failed
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ForbiddenError'
+                            examples:
+                                cloudinarySignatureVerificationFailed:
+                                    $ref: '#/components/examples/CloudinarySignatureVerificationFailed'
 
 components:
     schemas:
+        BadRequestError:
+            type: object
+            properties:
+                error:
+                    type: string
+                code:
+                    type: integer
+                message:
+                    type: string
+        UnauthorisedError:
+            type: object
+            properties:
+                error:
+                    type: string
+                code:
+                    type: integer
+                message:
+                    type: string
+        ForbiddenError:
+            type: object
+            properties:
+                error:
+                    type: string
+                code:
+                    type: integer
+                message:
+                    type: string
+        NotFoundError:
+            type: object
+            properties:
+                error:
+                    type: string
+                code:
+                    type: integer
+                message:
+                    type: string
+        ConflictError:
+            type: object
+            properties:
+                error:
+                    type: string
+                code:
+                    type: integer
+                message:
+                    type: string
         Playlist:
             type: object
             properties:
@@ -648,3 +1222,154 @@ components:
                     type: string
                     format: uri
                     description: Temporary or approved image URL returned after upload
+    examples:
+        NoDataProvided:
+            value:
+                error: BadRequestError
+                code: 400
+                message: No data provided for update / creation.
+        TitleRequired:
+            value:
+                error: BadRequestError
+                code: 400
+                message: Title is required for creation.
+        NoValidKeys:
+            value:
+                error: BadRequestError
+                code: 400
+                message: No valid keys provided for update / creation.
+        TitleEmpty:
+            value:
+                error: BadRequestError
+                code: 400
+                message: Title cannot be empty.
+        TitleExceedsMaxLength:
+            value:
+                error: BadRequestError
+                code: 400
+                message: title exceeds maximum length of 2000 characters.
+        DescriptionExceedsMaxLength:
+            value:
+                error: BadRequestError
+                code: 400
+                message: description exceeds maximum length of 2000 characters.
+        SummaryExceedsMaxLength:
+            value:
+                error: BadRequestError
+                code: 400
+                message: summary exceeds maximum length of 2000 characters.
+        NoValidMoviesArray:
+            value:
+                error: BadRequestError
+                code: 400
+                message: No valid movies array provided.
+        MoviesArrayEmpty:
+            value:
+                error: BadRequestError
+                code: 400
+                message: Movies array cannot be empty.
+        MoviesNonEmptyStrings:
+            value:
+                error: BadRequestError
+                code: 400
+                message: All movies must be non-empty strings.
+        MovieTitleMaxLength:
+            value:
+                error: BadRequestError
+                code: 400
+                message: Each movie title must be at most 2000 characters.
+        SomeMoviesDoNotExist:
+            value:
+                error: BadRequestError
+                code: 400
+                message: 'Some movies do not exist in our database: movie-slug-1, movie-slug-2'
+        MoviesAlreadyInPlaylist:
+            value:
+                error: BadRequestError
+                code: 400
+                message: 'Some movies are already in the playlist: inception, the-dark-knight'
+        MoviesNotInPlaylist:
+            value:
+                error: BadRequestError
+                code: 400
+                message: 'Some movies are not in the playlist: inception, the-dark-knight'
+        InvalidFileType:
+            value:
+                error: BadRequestError
+                code: 400
+                message: Invalid file type
+        EmailAlreadyExists:
+            value:
+                error: ConflictError
+                code: 409
+                message: Email already exists
+        InvalidEmailOrPassword:
+            value:
+                error: UnauthorisedError
+                code: 401
+                message: Invalid email or password
+        NoTokenProvided:
+            value:
+                error: UnauthorisedError
+                code: 401
+                message: No token provided
+        NoRefreshToken:
+            value:
+                error: UnauthorisedError
+                code: 401
+                message: Refresh token not provided
+        InvalidToken:
+            value:
+                error: UnauthorisedError
+                code: 401
+                message: Invalid or expired token
+        InvalidRefreshToken:
+            value:
+                error: UnauthorisedError
+                code: 401
+                message: Invalid refresh token
+        UserDidNotOwnThis:
+            value:
+                error: ForbiddenError
+                code: 403
+                message: Forbidden - User did not own this.
+        CloudinarySignatureVerificationFailed:
+            value:
+                error: ForbiddenError
+                code: 403
+                message: Cloudinary signature verification failed
+        NoMoviesFound:
+            value:
+                error: NotFoundError
+                code: 404
+                message: No movies found.
+        MovieNotFoundBySlug:
+            value:
+                error: NotFoundError
+                code: 404
+                message: Movie "inception" not found.
+        SlugNotFound:
+            value:
+                error: NotFoundError
+                code: 404
+                message: '"inception" not found.'
+        NoPlaylistsFound:
+            value:
+                error: NotFoundError
+                code: 404
+                message: No playlists found.
+        PlaylistNotFoundBySlug:
+            value:
+                error: NotFoundError
+                code: 404
+                message: Playlist "best-thrillers" not found.
+        MovieSlugAlreadyExists:
+            value:
+                error: ConflictError
+                code: 409
+                message: Movie with slug "inception" already exists.
+        PlaylistSlugAlreadyExists:
+            value:
+                error: ConflictError
+                code: 409
+                message: Playlist with slug "best-thrillers" already exists.
