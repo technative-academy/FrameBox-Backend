@@ -36,7 +36,8 @@ const limiter = rateLimit({
     legacyHeaders: false,
 })
 
-app.use('/api', limiter, routes)
+app.use(limiter)
+app.use('/api', routes)
 
 app.all('*splat', (req, res) => {
     throw new NotFoundError('404 Page Not Found')
