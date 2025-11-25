@@ -10,23 +10,6 @@ dotenv.config()
 
 const app = express()
 const port = process.env.PORT || 3000
-
-app.use(
-    express.json({
-        verify: (req, res, buf) => {
-            req.rawBody = buf
-        },
-    })
-)
-
-const corsOptions = {
-    origin: process.env.CORS_ORIGIN,
-    credentials: true,
-}
-
-app.use(cors(corsOptions))
-app.use(cookieParser())
-
 // Rate limiting
 const limiter = rateLimit({
     windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MINUTES || 15) * 60 * 1000,
@@ -35,10 +18,23 @@ const limiter = rateLimit({
     standardHeaders: true,
     legacyHeaders: false,
 })
+// CORS
+const corsOptions = {
+    origin: process.env.CORS_ORIGIN,
+    credentials: true,
+}
 
+app.use(
+    express.json({
+        verify: (req, res, buf) => {
+            req.rawBody = buf
+        },
+    })
+)
+app.use(cors(corsOptions))
+app.use(cookieParser())
 app.use(limiter)
 app.use('/api', routes)
-
 app.all('*splat', (req, res) => {
     throw new NotFoundError('404 Page Not Found')
 })
