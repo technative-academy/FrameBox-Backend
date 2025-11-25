@@ -18,6 +18,7 @@ const limiter = rateLimit({
     standardHeaders: true,
     legacyHeaders: false,
 })
+app.set('trust proxy', true)
 // CORS
 const corsOptions = {
     origin: process.env.CORS_ORIGIN,
