@@ -4,11 +4,25 @@ import routes from './src/routes.js'
 import NotFoundError from './src/errors/NotFoundError.js'
 import cookieParser from 'cookie-parser'
 import cors from 'cors'
+import rateLimit from 'express-rate-limit'
 
 dotenv.config()
 
 const app = express()
 const port = process.env.PORT || 3000
+// Rate limiting
+const limiter = rateLimit({
+    windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MINUTES || 15) * 60 * 1000,
+    limit: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS || 100),
+    message: 'Too many requests from this IP, please try again later.',
+    standardHeaders: true,
+    legacyHeaders: false,
+})
+// CORS
+const corsOptions = {
+    origin: process.env.CORS_ORIGIN,
+    credentials: true,
+}
 
 app.use(
     express.json({
@@ -17,20 +31,10 @@ app.use(
         },
     })
 )
-
-const corsOptions = {
-    origin: process.env.CORS_ORIGIN,
-    credentials: true,
-}
-
 app.use(cors(corsOptions))
 app.use(cookieParser())
-
+app.use(limiter)
 app.use('/api', routes)
-app.get('/test', (req, res) => {
-    res.status(200).json({ it_is: 'working!' })
-})
-
 app.all('*splat', (req, res) => {
     throw new NotFoundError('404 Page Not Found')
 })
@@ -43,7 +47,11 @@ app.use((err, req, res, next) => {
         return res.status(status).json(err.toJSON())
     }
 
-    return res.status(status).json({ error: err.name || 'Error', code: status, message: err.message || 'Internal Server Error' })
+    return res.status(status).json({
+        error: err.name || 'Error',
+        code: status,
+        message: err.message || 'Internal Server Error',
+    })
 })
 
 app.listen(port, () => {
