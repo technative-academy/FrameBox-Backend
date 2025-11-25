@@ -104,12 +104,6 @@ imageRouter.post('/cloudinary/webhook', async (req, res) => {
     const timestamp = req.header('X-Cld-Timestamp')
     const signature = req.header('X-Cld-Signature')
 
-    console.log(req.body)
-    console.log('---------')
-    console.log(raw)
-    console.log(timestamp)
-    console.log(signature)
-
     const isCloudinary = cloudinary.utils.verifyNotificationSignature(
         raw,
         timestamp,
@@ -117,7 +111,6 @@ imageRouter.post('/cloudinary/webhook', async (req, res) => {
         600
     )
 
-    console.log(`Was it Cloudinary? ${isCloudinary}`)
     if (!isCloudinary) {
         throw new ForbiddenError('Cloudinary signature verification failed')
     }
