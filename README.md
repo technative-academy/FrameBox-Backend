@@ -12,63 +12,74 @@ This project is designed to work alongside a separate **Frontend repository**, w
 
 ## 🖥️ Features
 
-- Full CRUD operations for Playlists and Movies (collections and items)
-- **JWT**-based authentication to restrict access to sensitive CRUD endpoints
-- User registration and login
-- Playlist management 
-- Movie management 
-- Image upload and hosting via **Cloudinary** - with moderation logic
-- Duplicate entry prevention and data validation
-- Custom error handling for common API issues
+-   Full CRUD operations for Playlists and Movies (collections and items)
+-   **JWT**-based authentication to restrict access to sensitive CRUD endpoints
+-   User registration and login
+-   Playlist management
+-   Movie management
+-   Image upload and hosting via **Cloudinary** - with moderation logic
+-   Duplicate entry prevention and data validation
+-   Custom error handling for common API issues
 
 ---
 
 ## 🎨 Design
 
-- Modular route structure for scalability (routes)
-- Middleware for authentication, validation, and duplicate checks
-- Centralized error handling for consistent API responses
-- Separation of concerns between services, routes, and database logic
+-   Modular route structure for scalability (routes)
+-   Middleware for authentication, validation, and duplicate checks
+-   Centralized error handling for consistent API responses
+-   Separation of concerns between services, routes, and database logic
 
 ---
 
 ## ⚙️ Technologies Used
 
-- **Node.js** - JavaScript runtime environment
-- **Express.js** - Web application framework
-- **pg** - PostgreSQL client for Node
-- **dotenv** - Environment variable management
-- **cors** - Cross-origin resource sharing middleware
-- **cookie-parser** - Parse cookies in incoming requests
-- **yaml** - YAML file parsing for configuration
-- **swagger-ui-express** - API documentation UI
+### Core Framework
+
+-   **Node.js** - JavaScript runtime environment
+-   **Express.js** (v5.1.0) - Web application framework
+-   **dotenv** - Environment variable management
+
+### Database
+
+-   **pg** - PostgreSQL client for Node.js
 
 ### Authentication & Security
 
-- **jsonwebtoken** - JWT-based authentication
-- **bcryptjs** - Password hashing
+-   **jsonwebtoken** - JWT-based authentication
+-   **bcryptjs** - Password hashing
+-   **cookie-parser** - Parse and handle HTTP cookies
+-   **express-rate-limit** - Rate limiting middleware to prevent abuse
 
 ### Media Uploads
 
-- **multer** - Multipart/form-data upload handling
-- **cloudinary** - Image hosting, transformation, and delivery
+-   **multer** - Multipart/form-data upload handling
+-   **cloudinary** - Image hosting, transformation, and moderation
 
-### Utilities
+### API & Documentation
 
-- **slugify** – Generate clean URL slugs
-  
+-   **swagger-ui-express** - Interactive API documentation UI
+-   **yaml** - YAML file parsing for API specs
+
+### Middleware & Utilities
+
+-   **cors** - Cross-origin resource sharing middleware
+-   **slugify** - Generate clean URL slugs from text
+
 ---
 
 ## 🤝 Authors
 
 ### Backend
-- [Matt Hemstock](https://github.com/waker-btn)
-- [Tymur Soroka](https://github.com/timtim40a)
+
+-   [Matt Hemstock](https://github.com/waker-btn)
+-   [Tymur Soroka](https://github.com/timtim40a)
 
 ### Frontend
-- [Nathan Hor](https://github.com/NathanHor22)
-- [Thabo Gulu](https://github.com/tgulu)
-- [Tymur Soroka](https://github.com/timtim40a)
+
+-   [Nathan Hor](https://github.com/NathanHor22)
+-   [Thabo Gulu](https://github.com/tgulu)
+-   [Tymur Soroka](https://github.com/timtim40a)
 
 ---
 
@@ -142,7 +153,16 @@ CLOUDINARY_API_SECRET=
 
 # --- CORS ---
 CORS_ORIGIN=
-# Example: frontend URL in development
+# Example: http://localhost:5173 (frontend URL in development)
+
+# --- Rate Limiting ---
+RATE_LIMIT_WINDOW_MINUTES=
+# Example: 15 (time window in minutes)
+# Default: 15
+
+RATE_LIMIT_MAX_REQUESTS=
+# Example: 100 (max requests per IP within the time window)
+# Default: 100
 ```
 
 Make sure to add your own actual credentials.
@@ -222,7 +242,3 @@ The API will be available at:
 Once running, you can explore the documentation at:
 
 [http://localhost:3000/api/docs](http://localhost:3000/api/docs)
-
-
-
-

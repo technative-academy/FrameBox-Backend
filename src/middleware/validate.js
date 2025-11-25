@@ -28,7 +28,9 @@ function createValidateReq(schemaObject) {
 
         // if no valid key is present
         if (!schemaObject.some((key) => key in req.body)) {
-            throw new BadRequestError('No valid keys provided for update / creation.')
+            throw new BadRequestError(
+                'No valid keys provided for update / creation.'
+            )
         }
 
         // if title is empty
@@ -47,7 +49,9 @@ function createValidateReq(schemaObject) {
                     req.body[key] = String(req.body[key])
                 }
                 if (req.body[key].length > MAX_TEXT_LENGTH) {
-                    throw new BadRequestError(`${key} exceeds maximum length of ${MAX_TEXT_LENGTH} characters.`)
+                    throw new BadRequestError(
+                        `${key} exceeds maximum length of ${MAX_TEXT_LENGTH} characters.`
+                    )
                 }
             }
         }
@@ -98,7 +102,9 @@ export function validateMovieArray(req, res, next) {
     }
 
     if (!movies.every((item) => item.length <= MAX_TEXT_LENGTH)) {
-        throw new BadRequestError(`Each movie title must be at most ${MAX_TEXT_LENGTH} characters.`)
+        throw new BadRequestError(
+            `Each movie title must be at most ${MAX_TEXT_LENGTH} characters.`
+        )
     }
 
     next()
@@ -118,7 +124,11 @@ export async function validateMoviesExistArray(req, res, next) {
     )
 
     if (missingMovies.length > 0) {
-        throw new BadRequestError(`Some movies do not exist in our database: ${missingMovies.join(', ')}`)
+        throw new BadRequestError(
+            `Some movies do not exist in our database: ${missingMovies.join(
+                ', '
+            )}`
+        )
     }
 
     const playlistMoviesQuery = await db.query(
@@ -134,13 +144,19 @@ export async function validateMoviesExistArray(req, res, next) {
         playlistMovies.includes(slug)
     )
     if (req.method === 'POST' && alreadyInPlaylist.length > 0) {
-        throw new BadRequestError(`Some movies are already in the playlist: ${alreadyInPlaylist.join(', ')}`)
+        throw new BadRequestError(
+            `Some movies are already in the playlist: ${alreadyInPlaylist.join(
+                ', '
+            )}`
+        )
     }
     const notInPlaylist = movies.filter(
         (slug) => !playlistMovies.includes(slug)
     )
     if (req.method === 'DELETE' && notInPlaylist.length > 0) {
-        throw new BadRequestError(`Some movies are not in the playlist: ${notInPlaylist.join(', ')}`)
+        throw new BadRequestError(
+            `Some movies are not in the playlist: ${notInPlaylist.join(', ')}`
+        )
     }
 
     next()
