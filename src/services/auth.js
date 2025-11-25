@@ -35,7 +35,7 @@ const registerUser = async (username, email, password, slug) => {
     // hash the password and insert the new user into the database
     const hashedPassword = await bcrypt.hash(password, 10)
     const result = await db.query(
-        'INSERT INTO users (username, email, password, slug, date_joined) VALUES ($1, $2, $3, $4, NOW()) RETURNING *',
+        'INSERT INTO users (username, email, password, slug, date_joined) VALUES ($1, $2, $3, $4, NOW()) RETURNING slug, username, bio, email, date_joined',
         [username, email, hashedPassword, slug]
     )
 
