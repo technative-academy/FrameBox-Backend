@@ -10,6 +10,9 @@ dotenv.config()
 
 const app = express()
 const port = process.env.PORT || 3000
+
+app.set('trust proxy', 1)
+
 // Rate limiting
 const limiter = rateLimit({
     windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MINUTES || 15) * 60 * 1000,
@@ -18,7 +21,6 @@ const limiter = rateLimit({
     standardHeaders: true,
     legacyHeaders: false,
 })
-app.set('trust proxy', true)
 // CORS
 const corsOptions = {
     origin: process.env.CORS_ORIGIN,
